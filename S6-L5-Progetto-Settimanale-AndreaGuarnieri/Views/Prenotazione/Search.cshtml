@@ -1,0 +1,42 @@
+﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.SearchViewModel
+
+@{
+    ViewData["Title"] = "Cerca Prenotazioni";
+}
+
+<div class="search-container">
+    <h1>Cerca Prenotazioni</h1>
+
+    <div class="form-group">
+        <label for="CodiceFiscale">Codice Fiscale</label>
+        <input type="text" class="form-control" id="CodiceFiscale" name="CodiceFiscale" />
+    </div>
+    <button id="cercaButton" class="btn btn-primary">Cerca</button>
+</div>
+
+<div id="searchResults" class="search-results"></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#cercaButton").click(function () {
+                var codiceFiscale = $("#CodiceFiscale").val();
+                $.ajax({
+                    url: '@Url.Action("Search", "Prenotazione")',
+                    type: 'POST',
+                    data: { codiceFiscale: codiceFiscale },
+                    success: function (result) {
+                        if (result.success === false) {
+                            alert(result.message);
+                        } else {
+                            $("#searchResults").html(result);
+                        }
+                    },
+                    error: function () {
+                        alert("Errore nella ricerca delle prenotazioni.");
+                    }
+                });
+            });
+        });
+    </script>
+}

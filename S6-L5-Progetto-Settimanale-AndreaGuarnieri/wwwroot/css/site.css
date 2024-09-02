@@ -1,0 +1,411 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+.home-background {
+    background-image: url('/images/waldorf.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Stile per la pagina di login */
+.login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .login-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #258cfb;
+    }
+
+    .login-container .btn-primary {
+        background-color: #258cfb;
+        border-color: #258cfb;
+        width: 100%;
+    }
+
+        .login-container .btn-primary:hover {
+            background-color: #1b6ec2;
+            border-color: #1b6ec2;
+        }
+
+    .login-container .form-control {
+        margin-bottom: 15px;
+    }
+
+    .login-container .form-check-label {
+        margin-left: 10px;
+    }
+
+    .login-container .alert {
+        text-align: center;
+    }
+
+/* Stile per la pagina di login fallito */
+.login-failed-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+    .login-failed-container h2 {
+        margin-bottom: 20px;
+        color: #d9534f;
+    }
+
+    .login-failed-container p {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .login-failed-container .btn-primary {
+        background-color: #258cfb;
+        border-color: #258cfb;
+    }
+
+        .login-failed-container .btn-primary:hover {
+            background-color: #1b6ec2;
+            border-color: #1b6ec2;
+        }
+
+/* Stili per la lista delle prenotazioni */
+.table-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .table-container h2 {
+        margin-bottom: 20px;
+        color: #258cfb;
+    }
+
+    .table-container .table {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+        .table-container .table th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .table-container .table td {
+            vertical-align: middle;
+        }
+
+    .table-container .btn {
+        margin-right: 5px;
+    }
+
+/* Stili per la pagina di ricerca delle prenotazioni */
+.search-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .search-container h1 {
+        margin-bottom: 20px;
+        text-align: center;
+        color: #258cfb;
+    }
+
+    .search-container .form-group {
+        margin-bottom: 20px;
+    }
+
+    .search-container .btn {
+        width: 100%;
+    }
+
+.search-results {
+    margin-top: 20px;
+}
+
+/* Stili per la lista delle prenotazioni */
+.table-container {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .table-container .table {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+        .table-container .table th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .table-container .table td {
+            vertical-align: middle;
+        }
+
+    .table-container .btn {
+        margin-right: 5px;
+    }
+
+.results-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .results-container h2 {
+        text-align: center;
+        color: #258cfb;
+        margin-bottom: 20px;
+    }
+
+    .results-container .table {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+        .results-container .table th, .results-container .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .form-container h2 {
+        text-align: center;
+        color: #258cfb;
+        margin-bottom: 20px;
+    }
+
+    .form-container .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-container .form-control {
+        margin-bottom: 5px;
+    }
+
+    .form-container .btn-primary {
+        width: 100%;
+        background-color: #258cfb;
+        border-color: #258cfb;
+    }
+
+        .form-container .btn-primary:hover {
+            background-color: #1b6ec2;
+            border-color: #1b6ec2;
+        }
+
+    .form-container .text-danger {
+        font-size: 0.875em;
+    }
+
+.checkout-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .checkout-container h2 {
+        text-align: center;
+        color: #258cfb;
+        margin-bottom: 20px;
+    }
+
+.booking-info, .additional-services, .total-amount {
+    margin-bottom: 20px;
+}
+
+    .booking-info h3, .additional-services h3, .total-amount h3 {
+        color: #258cfb;
+        border-bottom: 2px solid #258cfb;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+
+    .additional-services ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+        .additional-services ul li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+.btn-print {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    background-color: #258cfb;
+    border-color: #258cfb;
+    color: #fff;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+    .btn-print:hover {
+        background-color: #1b6ec2;
+        border-color: #1b6ec2;
+    }
+
+.add-client-booking-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .add-client-booking-container h2 {
+        text-align: center;
+        color: #258cfb;
+        margin-bottom: 20px;
+    }
+
+    .add-client-booking-container h3 {
+        color: #258cfb;
+        border-bottom: 2px solid #258cfb;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+    }
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        font-weight: bold;
+    }
+
+    .form-group input, .form-group select {
+        border-radius: 4px;
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    }
+
+    .form-group .text-danger {
+        font-size: 0.875rem;
+    }
+
+.btn-primary {
+    background-color: #258cfb;
+    border-color: #258cfb;
+    width: 100%;
+}
+
+    .btn-primary:hover {
+        background-color: #1b6ec2;
+        border-color: #1b6ec2;
+    }
+
+.back-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+    .back-link a {
+        color: #258cfb;
+        text-decoration: none;
+    }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+/* Stile per il menu a discesa delle camere */
+.form-group select {
+    font-size: 1rem; /* Imposta una dimensione del testo coerente */
+    padding: 0.5rem; /* Aggiungi padding per un aspetto più grande */
+}
+
+    .form-group select option {
+        padding: 0.5rem; /* Aggiungi padding per migliorare la leggibilità */
+    }
+
+@media print {
+    /* Nascondi tutti gli elementi della pagina per la stampa */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Mostra solo la sezione checkout-container */
+    .checkout-container, .checkout-container * {
+        visibility: visible;
+    }
+
+    /* Assicurati che la sezione checkout-container occupi tutta la pagina stampata */
+    .checkout-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    /* Nascondi l'intestazione del documento e il piè di pagina automatico */
+    @page {
+        margin: 0;
+    }
+
+    body {
+        margin: 1cm; /* Aggiungi un margine al contenuto stampato */
+    }
+}

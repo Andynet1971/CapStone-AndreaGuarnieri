@@ -1,0 +1,38 @@
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.Prenotazione>
+
+<div class="table-container">
+    <h2>Risultati della ricerca</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Cliente ID</th>
+                <th>Camera ID</th>
+                <th>Data Prenotazione</th>
+                <th>Data Inizio</th>
+                <th>Data Fine</th>
+                <th>Caparra</th>
+                <th>Tipo Soggiorno</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prenotazione in Model)
+            {
+                <tr>
+                    <td>@prenotazione.ClienteID</td>
+                    <td>@prenotazione.CameraID</td>
+                    <td>@prenotazione.DataPrenotazione.ToShortDateString()</td>
+                    <td>@prenotazione.DataInizio.ToShortDateString()</td>
+                    <td>@prenotazione.DataFine.ToShortDateString()</td>
+                    <td>@prenotazione.Caparra</td>
+                    <td>@prenotazione.TipoSoggiorno</td>
+                    <td>
+                        <a asp-action="AddServizioAggiuntivo" asp-route-id="@prenotazione.ID" class="btn btn-primary">Aggiungi Servizio</a>
+                        <a asp-action="Checkout" asp-route-id="@prenotazione.ID" class="btn btn-success">Checkout</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

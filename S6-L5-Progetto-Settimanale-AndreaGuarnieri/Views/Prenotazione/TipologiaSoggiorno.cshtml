@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Tipologia Soggiorno";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div id="results" class="results-container"></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '@Url.Action("GetTipologiaSoggiornoCounts", "Prenotazione")',
+                type: 'POST',
+                success: function (response) {
+                    var resultsHtml = '<table class="table table-striped">';
+                    resultsHtml += '<thead><tr><th>Tipo di Soggiorno</th><th>Conteggio</th></tr></thead>';
+                    resultsHtml += '<tbody>';
+                    $.each(response, function (key, value) {
+                        resultsHtml += '<tr>';
+                        resultsHtml += '<td>' + key + '</td>';
+                        resultsHtml += '<td>' + value + '</td>';
+                        resultsHtml += '</tr>';
+                    });
+                    resultsHtml += '</tbody></table>';
+                    $('#results').html(resultsHtml);
+                }
+            });
+        });
+    </script>
+}

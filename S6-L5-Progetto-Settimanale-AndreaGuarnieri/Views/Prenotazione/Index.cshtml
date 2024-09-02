@@ -1,0 +1,42 @@
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.ViewModels.PrenotazioneViewModel>
+
+@{
+    ViewData["Title"] = "Elenco Prenotazioni";
+}
+
+<div class="table-container">
+    <h2>Elenco Prenotazioni</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Codice Fiscale</th>
+                <th>Camera</th>
+                <th>Data Prenotazione</th>
+                <th>Data Inizio</th>
+                <th>Data Fine</th>
+                <th>Caparra</th>
+                <th>Tipo Soggiorno</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prenotazione in Model)
+            {
+                <tr>
+                    <td>@prenotazione.ClienteID</td>
+                    <td>@prenotazione.CameraID</td>
+                    <td>@prenotazione.DataPrenotazione.ToString("dd/MM/yyyy")</td>
+                    <td>@prenotazione.DataInizio.ToString("dd/MM/yyyy")</td>
+                    <td>@prenotazione.DataFine.ToString("dd/MM/yyyy")</td>
+                    <td>@prenotazione.Caparra</td>
+                    <td>@prenotazione.TipoSoggiorno</td>
+                    <td>
+                        <a asp-action="AddServizioAggiuntivo" asp-route-id="@prenotazione.ID" class="btn btn-warning btn-sm">Aggiungi Servizio</a>
+                        <a asp-action="Checkout" asp-route-id="@prenotazione.ID" class="btn btn-success btn-sm">Checkout</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

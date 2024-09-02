@@ -1,0 +1,40 @@
+﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Dettagli Checkout";
+}
+
+<div class="checkout-container">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="booking-info">
+        <h3>Informazioni Prenotazione</h3>
+        <p><strong>Numero Camera:</strong> @Model.NumeroCamera</p>
+        <p><strong>Periodo:</strong> @Model.DataInizio.ToString("dd/MM/yyyy") - @Model.DataFine.ToString("dd/MM/yyyy")</p>
+        <p><strong>Tariffa Giornaliera:</strong> @Model.Tariffa.ToString("C")</p>
+    </div>
+
+    <div class="additional-services">
+        <h3>Servizi Aggiuntivi</h3>
+        @if (Model.ServiziAggiuntivi.Any())
+        {
+            <ul>
+                @foreach (var servizio in Model.ServiziAggiuntivi)
+                {
+                    <li>@servizio.Servizio.Nome - @servizio.Quantita x @servizio.Servizio.Tariffa.ToString("C")</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Nessun servizio aggiuntivo richiesto.</p>
+        }
+    </div>
+
+    <div class="total-amount">
+        <h3>Importo da Saldare</h3>
+        <p>Importo totale: @Model.ImportoDaSaldare.ToString("C")</p>
+    </div>
+
+    <button class="btn btn-print" onclick="window.print()">Stampa</button>
+</div>

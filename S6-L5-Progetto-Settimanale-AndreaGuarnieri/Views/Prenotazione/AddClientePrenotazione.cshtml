@@ -1,0 +1,98 @@
+﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.ClientePrenotazioneViewModel
+
+@{
+    ViewData["Title"] = "Aggiungi Cliente e Prenotazione";
+}
+
+<div class="add-client-booking-container">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="AddClientePrenotazione" method="post">
+        <div class="form-group">
+            <label asp-for="ClienteCodiceFiscale"></label>
+            <input asp-for="ClienteCodiceFiscale" class="form-control" />
+            <span asp-validation-for="ClienteCodiceFiscale" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteCognome"></label>
+            <input asp-for="ClienteCognome" class="form-control" />
+            <span asp-validation-for="ClienteCognome" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteNome"></label>
+            <input asp-for="ClienteNome" class="form-control" />
+            <span asp-validation-for="ClienteNome" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteCitta"></label>
+            <input asp-for="ClienteCitta" class="form-control" />
+            <span asp-validation-for="ClienteCitta" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteProvincia"></label>
+            <input asp-for="ClienteProvincia" class="form-control" />
+            <span asp-validation-for="ClienteProvincia" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteEmail"></label>
+            <input asp-for="ClienteEmail" class="form-control" />
+            <span asp-validation-for="ClienteEmail" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteTelefono"></label>
+            <input asp-for="ClienteTelefono" class="form-control" />
+            <span asp-validation-for="ClienteTelefono" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ClienteCellulare"></label>
+            <input asp-for="ClienteCellulare" class="form-control" />
+            <span asp-validation-for="ClienteCellulare" class="text-danger"></span>
+        </div>
+
+        <h3>Dettagli Prenotazione</h3>
+        <div class="form-group">
+            <label asp-for="CameraID"></label>
+            <select asp-for="CameraID" asp-items="@(new SelectList(Model.CamereDisponibili, "Numero", "Descrizione", "Numero - Descrizione"))" class="form-control"></select>
+            <span asp-validation-for="CameraID" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="DataPrenotazione"></label>
+            <input asp-for="DataPrenotazione" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="DataPrenotazione" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="DataInizio"></label>
+            <input asp-for="DataInizio" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="DataInizio" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="DataFine"></label>
+            <input asp-for="DataFine" class="form-control" type="date" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="DataFine" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Caparra"></label>
+            <input asp-for="Caparra" class="form-control" />
+            <span asp-validation-for="Caparra" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="TipoSoggiorno"></label>
+            <select asp-for="TipoSoggiorno" class="form-control">
+                <option value="pernottamento con prima colazione">Pernottamento con Prima Colazione</option>
+                <option value="pensione completa">Pensione Completa</option>
+                <option value="mezza pensione">Mezza Pensione</option>
+            </select>
+            <span asp-validation-for="TipoSoggiorno" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salva</button>
+    </form>
+
+    <div class="back-link">
+        <a asp-action="Index">Torna all'elenco</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
