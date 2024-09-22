@@ -1,0 +1,43 @@
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.Utente>
+
+<h2>Gestione Utenti</h2>
+
+<!-- Form principale per inviare tutte le modifiche -->
+<form asp-action="SalvaModificheUtenti" method="post">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Nome</th>
+                <th>Cognome</th>
+                <th>Ruolo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                var utente = Model.ElementAt(i);
+                <tr>
+                    <td>@utente.ID</td>
+                    <td>
+                        <input type="hidden" name="utenti[@i].ID" value="@utente.ID" />
+                        <input type="text" class="form-control" name="utenti[@i].Username" value="@utente.Username" readonly />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="utenti[@i].Nome" value="@utente.Nome" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="utenti[@i].Cognome" value="@utente.Cognome" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="utenti[@i].Ruolo" value="@utente.Ruolo" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Bottone per salvare tutte le modifiche -->
+    <button type="submit" class="btn btn-primary">Salva modifiche</button>
+</form>

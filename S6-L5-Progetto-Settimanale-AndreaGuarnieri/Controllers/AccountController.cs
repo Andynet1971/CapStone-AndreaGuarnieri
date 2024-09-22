@@ -5,6 +5,7 @@ using CapStone_AndreaGuarnieri.Models.ViewModels;
 using CapStone_AndreaGuarnieri.Models.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using CapStone_AndreaGuarnieri.Models;
 
 namespace CapStone_AndreaGuarnieri
     .Controllers
@@ -87,5 +88,81 @@ namespace CapStone_AndreaGuarnieri
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
+        public IActionResult GestisciUtenti()
+        {
+            var utenti = _utenteService.GetAllUtenti();
+            return View(utenti);
+        }
+        // GET: Visualizza il modulo di modifica
+        [HttpGet]
+        public IActionResult ModificaUtenteGet(int id)
+        {
+            var utente = _utenteService.GetUtenteById(id);
+            if (utente == null)
+            {
+                return NotFound();
+            }
+
+            return View("ModificaUtente", utente); // Qui indichi esplicitamente il nome della vista
+        }
+
+        // POST: Salva i dati modificati
+        [HttpPost]
+        public IActionResult ModificaUtentePost(Utente utente) // Rinominato ModificaUtentePost
+        {
+            if (ModelState.IsValid)
+            {
+                _utenteService.UpdateUtente(utente);
+                return RedirectToAction("GestisciUtenti");
+            }
+
+            return View(utente);
+        }
+        public IActionResult Test()
+        {
+            return Content("Funziona!");
+        }
+
+        [HttpPost]
+        public IActionResult SalvaModificheUtenti(List<Utente> utenti)
+        {
+            // Rimuovi i campi Salt e PasswordHash dal ModelState per ogni utente
+            foreach (var i in Enumerable.Range(0, utenti.Count))
+            {
+                ModelState.Remove($"utenti[{i}].PasswordHash");
+                ModelState.Remove($"utenti[{i}].Salt");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // Log degli errori di validazione
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+
+                // Restituisci la vista con i dati attuali se ci sono errori di validazione
+                return View("GestisciUtenti", utenti);
+            }
+
+            foreach (var utente in utenti)
+            {
+                // Recupera l'utente esistente
+                var utenteEsistente = _utenteService.GetUtenteById(utente.ID);
+                if (utenteEsistente != null)
+                {
+                    // Mantieni i valori di Salt e PasswordHash dall'utente esistente
+                    utente.PasswordHash = utenteEsistente.PasswordHash;
+                    utente.Salt = utenteEsistente.Salt;
+
+                    // Aggiorna l'utente
+                    _utenteService.UpdateUtente(utente);
+                }
+            }
+
+            // Reindirizza alla pagina principale (Home)
+            return RedirectToAction("Index", "Home");
+        }
+
     }
 }

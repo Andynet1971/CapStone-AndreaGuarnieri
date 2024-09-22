@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace PasswordHasher
 {
@@ -8,26 +9,23 @@ namespace PasswordHasher
     {
         static void Main(string[] args)
         {
-            string passwordLuca = "1234";
-            string passwordPaolo = "5678";
+            Console.Write("Inserisci il nome utente: ");
+            string username = Console.ReadLine();
 
-            string saltLuca, saltPaolo, hashLuca, hashPaolo;
+            Console.Write("Inserisci la password: ");
+            string password = Console.ReadLine();
 
-            hashLuca = HashPassword(passwordLuca, out saltLuca);
-            hashPaolo = HashPassword(passwordPaolo, out saltPaolo);
+            string salt, hash;
 
-            Console.WriteLine("Luca:");
-            Console.WriteLine("Hash: " + hashLuca);
-            Console.WriteLine("Salt: " + saltLuca);
+            hash = HashPassword(password, out salt);
 
-            Console.WriteLine("\nPaolo:");
-            Console.WriteLine("Hash: " + hashPaolo);
-            Console.WriteLine("Salt: " + saltPaolo);
+            Console.WriteLine("Hash: " + hash);
+            Console.WriteLine("Salt: " + salt);
 
-            // Genera lo script SQL per inserire nel database
-            string insertScript = GenerateInsertScript("Luca", hashLuca, saltLuca, "Paolo", hashPaolo, saltPaolo);
-            Console.WriteLine("\nScript SQL:");
-            Console.WriteLine(insertScript);
+            // Inserisce i dati nel database
+            InsertUserIntoDatabase(username, hash, salt);
+
+            Console.WriteLine("\nDati inseriti con successo nel database.");
         }
 
         public static string HashPassword(string password, out string salt)
@@ -46,14 +44,26 @@ namespace PasswordHasher
             }
         }
 
-        public static string GenerateInsertScript(string username1, string hash1, string salt1, string username2, string hash2, string salt2)
+        public static void InsertUserIntoDatabase(string username, string hash, string salt)
         {
-            return $@"
+            string connectionString = "Your_Connection_String_Here"; // Sostituisci con la tua stringa di connessione
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = @"
 INSERT INTO [dbo].[Utenti] (Username, PasswordHash, Salt)
-VALUES
-('{username1}', '{hash1}', '{salt1}'),
-('{username2}', '{hash2}', '{salt2}');
-";
+VALUES (@Username, @PasswordHash, @Salt);";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@PasswordHash", hash);
+                    command.Parameters.AddWithValue("@Salt", salt);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

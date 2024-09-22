@@ -39,5 +39,21 @@ namespace CapStone_AndreaGuarnieri.Models.Services
             // Aggiunge l'utente al data access
             _utenteDataAccess.AddUtente(utente);
         }
+        public IEnumerable<Utente> GetAllUtenti()
+        {
+            return _utenteDataAccess.GetAllUtenti();
+        }
+        public void UpdateUtente(Utente utente)
+        {
+            _utenteDataAccess.UpdateUtente(utente);
+        }
+        public void DeleteUtente(int id)
+        {
+            _utenteDataAccess.DeleteUtente(id);
+        }
+        public Utente GetUtenteById(int id)
+        {
+            return _utenteDataAccess.GetUtenteById(id);
+        }
     }
 }

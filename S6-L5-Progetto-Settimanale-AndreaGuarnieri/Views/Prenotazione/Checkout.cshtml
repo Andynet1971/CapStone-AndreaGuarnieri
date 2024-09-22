@@ -11,7 +11,27 @@
         <h3>Informazioni Prenotazione</h3>
         <p><strong>Numero Camera:</strong> @Model.NumeroCamera</p>
         <p><strong>Periodo:</strong> @Model.DataInizio.ToString("dd/MM/yyyy") - @Model.DataFine.ToString("dd/MM/yyyy")</p>
-        <p><strong>Tariffa Giornaliera:</strong> @Model.Tariffa.ToString("C")</p>
+        <p><strong>Caparra Versata:</strong> @Model.Caparra.ToString("C")</p>
+    </div>
+
+    <div class="tariffs">
+        <h3>Tariffe per Periodo</h3>
+        @if (Model.TariffePerPeriodo.Any())
+        {
+            <ul>
+                @foreach (var tariffa in Model.TariffePerPeriodo)
+                {
+                    <li>
+                        <strong>Dal @Model.DataInizio.ToString("dd/MM/yyyy") al @Model.DataFine.ToString("dd/MM/yyyy"):</strong>
+                        @tariffa.TariffaGiornaliera.ToString("C") - @tariffa.TipoStagione
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Nessuna tariffa disponibile.</p>
+        }
     </div>
 
     <div class="additional-services">
@@ -21,7 +41,7 @@
             <ul>
                 @foreach (var servizio in Model.ServiziAggiuntivi)
                 {
-                    <li>@servizio.Servizio.Nome - @servizio.Quantita x @servizio.Servizio.Tariffa.ToString("C")</li>
+                    <li>@servizio.NomeServizio - @servizio.Quantita x @servizio.TariffaServizio.ToString("C")</li> <!-- Utilizzare NomeServizio e TariffaServizio -->
                 }
             </ul>
         }
@@ -30,6 +50,7 @@
             <p>Nessun servizio aggiuntivo richiesto.</p>
         }
     </div>
+
 
     <div class="total-amount">
         <h3>Importo da Saldare</h3>

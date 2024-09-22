@@ -35,8 +35,15 @@ namespace CapStone_AndreaGuarnieri.Models.ViewModels
         [Display(Name = "Tipo Soggiorno")]
         public string TipoSoggiorno { get; set; }
 
-        // Aggiungi la proprietà NumeroProgressivo
         public int NumeroProgressivo { get; set; }
+
+        [Required]
+        [Display(Name = "Prezzo Totale")]
+        public decimal PrezzoTotale { get; set; } // Campo per il prezzo totale
+
+        [Required]
+        [Display(Name = "Confermata")]
+        public bool Confermata { get; set; } = false; // Campo booleano, impostato a false per default
 
         // Lista di camere disponibili
         public List<Camera> CamereDisponibili { get; set; }

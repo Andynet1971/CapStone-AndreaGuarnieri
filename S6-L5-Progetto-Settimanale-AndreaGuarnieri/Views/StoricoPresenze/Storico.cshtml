@@ -1,0 +1,103 @@
+﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.OccupazioneViewModel
+
+@{
+    var periodi = new Dictionary<string, string>
+    {
+        { "ultimoMese", "Ultimo mese" },
+        { "ultimi3Mesi", "Ultimi 3 mesi" },
+        { "ultimi6Mesi", "Ultimi 6 mesi" },
+        { "ultimoAnno", "Ultimo anno" }
+    };
+}
+
+<h2>Storico Presenze</h2>
+
+<form method="get" asp-controller="StoricoPresenze" asp-action="Storico">
+    <select name="periodo" onchange="this.form.submit()">
+        @foreach (var periodo in periodi)
+        {
+            if (Model.PeriodoSelezionato == periodo.Key)
+            {
+                <option value="@periodo.Key" selected="selected">@periodo.Value</option>
+            }
+            else
+            {
+                <option value="@periodo.Key">@periodo.Value</option>
+            }
+        }
+    </select>
+</form>
+
+<!-- Grafico tasso di occupazione -->
+<canvas id="occupazioneChart" width="400" height="200"></canvas>
+
+<!-- Grafico degli incassi -->
+<canvas id="incassiChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Grafico tasso di occupazione
+    var ctxOccupazione = document.getElementById('occupazioneChart').getContext('2d');
+    var occupazioneChart = new Chart(ctxOccupazione, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Date.Select(d => d.ToString("dd/MM/yyyy")))),
+            datasets: [{
+                label: 'Tasso di occupazione',
+                data: @Html.Raw(Json.Serialize(Model.TassoOccupazione)),
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Tasso di occupazione per periodo selezionato'
+            },
+            scales: {
+                xAxes: [{ display: true }],
+                yAxes: [{
+                    display: true,
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }]
+            }
+        }
+    });
+
+    // Grafico degli incassi
+    var ctxIncassi = document.getElementById('incassiChart').getContext('2d');
+    var incassiChart = new Chart(ctxIncassi, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Json.Serialize(Model.Date.Select(d => d.ToString("dd/MM/yyyy")))),
+            datasets: [{
+                label: 'Incassi (€)',
+                data: @Html.Raw(Json.Serialize(Model.Incassi)),
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Incassi per periodo selezionato'
+            },
+            scales: {
+                xAxes: [{ display: true }],
+                yAxes: [{
+                    display: true,
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>

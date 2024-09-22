@@ -18,5 +18,14 @@ namespace CapStone_AndreaGuarnieri.Models
 
         [Required]
         public bool Disponibile { get; set; }
+
+        // Aggiungi la proprietà combinata NumeroDescrizione
+        public string NumeroDescrizione
+        {
+            get
+            {
+                return $"{Numero} - {Descrizione}";
+            }
+        }
     }
 }

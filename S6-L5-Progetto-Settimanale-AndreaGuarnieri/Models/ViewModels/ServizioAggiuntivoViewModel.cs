@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CapStone_AndreaGuarnieri.Models.ViewModels
 {
@@ -18,5 +20,9 @@ namespace CapStone_AndreaGuarnieri.Models.ViewModels
         public int Quantita { get; set; }
 
         public List<Servizio> ServiziDisponibili { get; set; } = new List<Servizio>();
+
+        // Proprietà aggiuntive per visualizzare i dettagli del servizio nella vista
+        public string NomeServizio { get; set; }
+        public decimal TariffaServizio { get; set; }
     }
 }

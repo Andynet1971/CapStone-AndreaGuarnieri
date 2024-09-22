@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using CapStone_AndreaGuarnieri.Models;
 using CapStone_AndreaGuarnieri.Models.Services;
 using CapStone_AndreaGuarnieri.Models.ViewModels;
-using System.Linq;
+using System.Data.SqlClient;
 
 namespace CapStone_AndreaGuarnieri.Controllers
 {
@@ -161,20 +161,47 @@ namespace CapStone_AndreaGuarnieri.Controllers
                 return NotFound();
             }
 
-            var serviziAggiuntivi = _prenotazioneService.GetServiziAggiuntivi(id).ToList();
+            // Popolamento dei servizi aggiuntivi con mapping al ViewModel
+            var serviziAggiuntivi = _prenotazioneService.GetServiziAggiuntivi(id)
+                .Select(sa => new ServizioAggiuntivoViewModel
+                {
+                    ServizioID = sa.ServizioID,
+                    Quantita = sa.Quantita,
+                    NomeServizio = sa.Servizio.Nome, // Nome del servizio
+                    TariffaServizio = sa.Servizio.Tariffa // Tariffa del servizio
+                })
+                .ToList();
 
+            // Ottenere le tariffe per il periodo in base al TipoCamera
+            var tariffePerPeriodo = _prenotazioneService.GetTariffePerPeriodo(prenotazione.DataInizio, prenotazione.DataFine, prenotazione.CameraID)
+                .Select(t => new TariffaPeriodoViewModel
+                {
+                    TipoStagione = t.TipoStagione,
+                    TariffaGiornaliera = t.TariffaGiornaliera,
+                    DataInizio = t.DataInizio,
+                    DataFine = t.DataFine
+                })
+                .ToList();
+
+            // Calcolo del totale importo da saldare (tariffe camera + servizi aggiuntivi)
+            var importoDaSaldare = tariffePerPeriodo.Sum(t => t.TariffaGiornaliera * (prenotazione.DataFine - prenotazione.DataInizio).Days)
+                                    + serviziAggiuntivi.Sum(sa => sa.TariffaServizio * sa.Quantita);
+
+            // Popolamento del ViewModel di Checkout
             var model = new CheckoutViewModel
             {
                 NumeroCamera = prenotazione.CameraID,
                 DataInizio = prenotazione.DataInizio,
                 DataFine = prenotazione.DataFine,
-                Tariffa = prenotazione.Camera.TariffaGiornaliera,
+                Caparra = prenotazione.Caparra,
                 ServiziAggiuntivi = serviziAggiuntivi,
-                ImportoDaSaldare = (prenotazione.Camera.TariffaGiornaliera * (prenotazione.DataFine - prenotazione.DataInizio).Days) + serviziAggiuntivi.Sum(sa => sa.Servizio.Tariffa * sa.Quantita)
+                TariffePerPeriodo = tariffePerPeriodo,  // Aggiungi qui le tariffe per periodo
+                ImportoDaSaldare = importoDaSaldare
             };
 
             return View(model);
         }
+
 
         // Metodo GET per aggiungere un nuovo servizio aggiuntivo
         [HttpGet]
@@ -211,5 +238,82 @@ namespace CapStone_AndreaGuarnieri.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+        public List<TariffaPeriodoViewModel> GetTariffePerPeriodo(DateTime dataInizioPrenotazione, DateTime dataFinePrenotazione, int cameraId)
+        {
+            var tariffePerPeriodo = new List<TariffaPeriodoViewModel>();
+
+            // Recupera tutte le tariffe per la camera specificata
+            var tariffe = new List<Tariffa>();
+
+            using (SqlConnection conn = new SqlConnection("your_connection_string_here"))
+            {
+                conn.Open();
+                string query = @"
+            SELECT TipoStagione, TariffaGiornaliera, DataInizio, DataFine, TipoCamera
+            FROM Tariffe
+            WHERE TipoCamera = (SELECT Tipologia FROM Camere WHERE Numero = @CameraID)";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CameraID", cameraId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            tariffe.Add(new Tariffa
+                            {
+                                TipoStagione = reader.GetString(0),
+                                TariffaGiornaliera = reader.GetDecimal(1),
+                                DataInizio = reader.GetDateTime(2),
+                                DataFine = reader.GetDateTime(3)
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Ora iteriamo sui giorni di prenotazione
+            var currentDate = dataInizioPrenotazione;
+
+            while (currentDate <= dataFinePrenotazione)
+            {
+                // Trova la tariffa valida per il giorno corrente
+                var tariffaValida = tariffe.FirstOrDefault(t => t.DataInizio <= currentDate && t.DataFine >= currentDate);
+
+                if (tariffaValida != null)
+                {
+                    // Determina l'inizio del periodo per la prenotazione e la tariffa
+                    var dataInizioPeriodo = currentDate;
+                    var dataFinePeriodo = dataFinePrenotazione;
+
+                    // Se la fine della tariffa è prima della fine della prenotazione, chiudi il periodo tariffario
+                    if (tariffaValida.DataFine < dataFinePrenotazione)
+                    {
+                        dataFinePeriodo = tariffaValida.DataFine;
+                    }
+
+                    // Aggiungi la tariffa valida con il periodo sovrapposto
+                    tariffePerPeriodo.Add(new TariffaPeriodoViewModel
+                    {
+                        TipoStagione = tariffaValida.TipoStagione,
+                        TariffaGiornaliera = tariffaValida.TariffaGiornaliera,
+                        DataInizio = dataInizioPeriodo,
+                        DataFine = dataFinePeriodo
+                    });
+
+                    // Avanza al giorno dopo la fine del periodo corrente
+                    currentDate = dataFinePeriodo.AddDays(1);
+                }
+                else
+                {
+                    // Se non troviamo nessuna tariffa per un giorno, avanza semplicemente di un giorno
+                    currentDate = currentDate.AddDays(1);
+                }
+            }
+
+            return tariffePerPeriodo;
+        }
+
     }
 }

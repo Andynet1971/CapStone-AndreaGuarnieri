@@ -1,0 +1,25 @@
+﻿@model CapStone_AndreaGuarnieri.Models.Utente
+
+<h2>Modifica Utente</h2>
+
+<form asp-action="ModificaUtentePost" method="post">
+    <!-- Assicurati che il metodo POST sia corretto -->
+    <div class="form-group">
+        <label for="Username">Username</label>
+        <input type="text" class="form-control" id="Username" name="Username" value="@Model.Username" readonly />
+    </div>
+    <div class="form-group">
+        <label for="Nome">Nome</label>
+        <input type="text" class="form-control" id="Nome" name="Nome" value="@Model.Nome" />
+    </div>
+    <div class="form-group">
+        <label for="Cognome">Cognome</label>
+        <input type="text" class="form-control" id="Cognome" name="Cognome" value="@Model.Cognome" />
+    </div>
+    <div class="form-group">
+        <label for="Ruolo">Ruolo</label>
+        <input type="text" class="form-control" id="Ruolo" name="Ruolo" value="@Model.Ruolo" />
+    </div>
+    <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+    <a asp-action="GestisciUtenti" class="btn btn-secondary">Annulla</a>
+</form>

@@ -52,9 +52,10 @@
         <h3>Dettagli Prenotazione</h3>
         <div class="form-group">
             <label asp-for="CameraID"></label>
-            <select asp-for="CameraID" asp-items="@(new SelectList(Model.CamereDisponibili, "Numero", "Descrizione", "Numero - Descrizione"))" class="form-control"></select>
+            <select asp-for="CameraID" asp-items="@(new SelectList(Model.CamereDisponibili, "Numero", "NumeroDescrizione"))" class="form-control"></select>
             <span asp-validation-for="CameraID" class="text-danger"></span>
         </div>
+
         <div class="form-group">
             <label asp-for="DataPrenotazione"></label>
             <input asp-for="DataPrenotazione" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
