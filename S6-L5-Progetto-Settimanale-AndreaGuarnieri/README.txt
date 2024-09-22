@@ -6,6 +6,11 @@ Oltre a questa applicazione principale ho anche realizzato un App Windows Forms 
 degli Utenti all'interno del DB stesso. Come ultima cosa ho anche realizzato un App, che ho compilato e quindi reso eseguibile, in Pyton. Questa app mi consente
 di popolare il database con dati finti generati al momento. 
 
+LINK PER L'APP IN PYTON PER POPOLARE IL DB
+https://github.com/Andynet1971/Popola_db
+
+LINK PER L'APP IN PYTON PER POPOLARE IL DB
+https://github.com/Andynet1971/User-Managment
 
 STRUMENTI UTILIZZATI
 
