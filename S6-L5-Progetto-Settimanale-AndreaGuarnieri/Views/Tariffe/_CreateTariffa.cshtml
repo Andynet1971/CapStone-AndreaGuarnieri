@@ -1,0 +1,48 @@
+﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.TariffaViewModel
+
+<h3>Aggiungi Nuova Tariffa</h3>
+
+<form asp-action="Create" method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tipo Stagione</th>
+                <th>Tipo Camera</th>
+                <th>Tariffa Giornaliera</th>
+                <th>Data Inizio</th>
+                <th>Data Fine</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <!-- Menu a tendina per Tipo Stagione -->
+                    @Html.DropDownListFor(
+                             model => model.TipoStagione,
+                             new SelectList(new List<string> { "Altissima", "Alta", "Media", "Bassa" }),
+                             new { @class = "form-control" })
+                </td>
+                <td>
+                    <!-- Menu a tendina per Tipo Camera -->
+                    @Html.DropDownListFor(
+                             model => model.TipoCamera,
+                             new SelectList(new List<string> { "Singola", "Doppia", "Suite" }),
+                             new { @class = "form-control" })
+                </td>
+                <td>
+                    <input asp-for="TariffaGiornaliera" class="form-control" />
+                </td>
+                <td>
+                    <input asp-for="DataInizio" type="date" class="form-control" />
+                </td>
+                <td>
+                    <input asp-for="DataFine" type="date" class="form-control" />
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-primary">Aggiungi Tariffa</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>

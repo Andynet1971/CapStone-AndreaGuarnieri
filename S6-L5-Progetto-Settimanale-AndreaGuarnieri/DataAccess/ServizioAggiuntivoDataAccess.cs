@@ -32,6 +32,25 @@ namespace CapStone_AndreaGuarnieri.DataAccess
                 command.ExecuteNonQuery();
             }
         }
+        public void UpdateServizioAggiuntivo(ServizioAggiuntivo servizioAggiuntivo)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+                UPDATE ServiziAggiuntivi
+                SET ServizioID = @ServizioID, Data = @Data, Quantita = @Quantita
+                WHERE ID = @ID";
+
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ID", servizioAggiuntivo.ID);
+                command.Parameters.AddWithValue("@ServizioID", servizioAggiuntivo.ServizioID);
+                command.Parameters.AddWithValue("@Data", servizioAggiuntivo.Data);
+                command.Parameters.AddWithValue("@Quantita", servizioAggiuntivo.Quantita);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
 
         // Metodo per ottenere i servizi aggiuntivi associati a una prenotazione specifica
         public IEnumerable<ServizioAggiuntivo> GetServiziAggiuntiviByPrenotazioneId(int prenotazioneID)
@@ -96,6 +115,18 @@ namespace CapStone_AndreaGuarnieri.DataAccess
             }
 
             return servizi;
+        }
+        public void DeleteServizioAggiuntivo(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "DELETE FROM ServiziAggiuntivi WHERE ID = @ID";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ID", id);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

@@ -38,5 +38,33 @@ namespace CapStone_AndreaGuarnieri.DataAccess
 
             return servizi;
         }
+        public Servizio GetServizioById(int id)
+        {
+            Servizio servizio = null;
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT ID, Nome, Tariffa FROM Servizi WHERE ID = @ID";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ID", id);
+
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        servizio = new Servizio
+                        {
+                            ID = reader.GetInt32(0),
+                            Nome = reader.GetString(1),
+                            Tariffa = reader.GetDecimal(2)
+                        };
+                    }
+                }
+            }
+
+            return servizio;
+        }
     }
 }

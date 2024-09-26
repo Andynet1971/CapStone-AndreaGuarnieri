@@ -437,11 +437,134 @@ body {
         border-color: #1b6ec2;
     }
 
+.small-chart {
+    width: 80% !important;
+    height: 80% !important;
+    margin-left: 150px; /* Sposta i grafici 50px a destra */
+}
+
+.titolo-sezione {
+    font-size: 2em;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-periodo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.seleziona-periodo {
+    padding: 8px 12px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
+.sottotitolo-sezione {
+    font-size: 1.5em;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.statistiche {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    font-size: 1.1em;
+    color: #555;
+}
+
+    .statistiche p {
+        margin: 10px 0;
+    }
+
+.grafico {
+    display: block;
+    margin: 30px auto;
+    max-width: 600px;
+    max-height: 400px;
+}
+
+
+
+/* Stile del contenitore del form */
+#searchForm {
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Stile dell'input di ricerca */
+#searchQuery {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Stile del pulsante di ricerca */
+#searchForm button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Cambia colore del bordo dell'input al focus */
+#searchQuery:focus {
+    border-color: #4CAF50;
+}
+
+/* Cambia colore del pulsante al passaggio del mouse */
+#searchForm button:hover {
+    background-color: #45a049;
+}
+
+/* Aggiungi ombra al pulsante al click */
+#searchForm button:active {
+    box-shadow: 0 2px #666;
+    transform: translateY(2px);
+}
+
+/* Mobile-friendly styling */
+@media screen and (max-width: 600px) {
+    #searchQuery {
+        width: 90%;
+    }
+
+    #searchForm button {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+
+
+
+
 
 @media print {
     /* Nascondi tutti gli elementi della pagina per la stampa */
     body * {
         visibility: hidden;
+    }
+
+    /* Nascondi il bottone di stampa */
+    .btn-print {
+        display: none;
     }
 
     /* Mostra solo la sezione checkout-container */

@@ -1,7 +1,122 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<h2 style="text-align: center;">Mappa delle Camere</h2>
+<canvas id="mapCanvas" width="1600" height="800" style="border:1px solid #000000; display: block; margin: 0 auto;"></canvas>
 
-<div class="home-background">
-    <!-- Contenuto aggiuntivo opzionale qui -->
-</div>
+<script>
+    // Camere organizzate per piano
+    var camere = [
+        // Piano 1 - Suite (101-110)
+        { numero: 101, disponibile: true, tipologia: 'suite' }, { numero: 102, disponibile: false, tipologia: 'suite' },
+        { numero: 103, disponibile: false, tipologia: 'suite' }, { numero: 104, disponibile: true, tipologia: 'suite' },
+        { numero: 105, disponibile: false, tipologia: 'suite' }, { numero: 106, disponibile: true, tipologia: 'suite' },
+        { numero: 107, disponibile: false, tipologia: 'suite' }, { numero: 108, disponibile: true, tipologia: 'suite' },
+        { numero: 109, disponibile: true, tipologia: 'suite' }, { numero: 110, disponibile: false, tipologia: 'suite' },
+
+        // Piano 2 - Singole (111-120)
+        { numero: 111, disponibile: true, tipologia: 'singola' }, { numero: 112, disponibile: true, tipologia: 'singola' },
+        { numero: 113, disponibile: false, tipologia: 'singola' }, { numero: 114, disponibile: true, tipologia: 'singola' },
+        { numero: 115, disponibile: false, tipologia: 'singola' }, { numero: 116, disponibile: true, tipologia: 'singola' },
+        { numero: 117, disponibile: false, tipologia: 'singola' }, { numero: 118, disponibile: true, tipologia: 'singola' },
+        { numero: 119, disponibile: true, tipologia: 'singola' }, { numero: 120, disponibile: false, tipologia: 'singola' },
+
+        // Piano 3 - Doppie (121-130)
+        { numero: 121, disponibile: true, tipologia: 'doppia' }, { numero: 122, disponibile: true, tipologia: 'doppia' },
+        { numero: 123, disponibile: false, tipologia: 'doppia' }, { numero: 124, disponibile: true, tipologia: 'doppia' },
+        { numero: 125, disponibile: false, tipologia: 'doppia' }, { numero: 126, disponibile: true, tipologia: 'doppia' },
+        { numero: 127, disponibile: false, tipologia: 'doppia' }, { numero: 128, disponibile: true, tipologia: 'doppia' },
+        { numero: 129, disponibile: true, tipologia: 'doppia' }, { numero: 130, disponibile: false, tipologia: 'doppia' }
+    ];
+
+    // Funzione per disegnare le camere con layout avanzato
+    function drawRooms() {
+        var canvas = document.getElementById('mapCanvas');
+        var ctx = canvas.getContext('2d');
+
+        // Impostazioni base
+        var roomWidth = 120;
+        var roomHeight = 80;
+        var padding = 30;
+        var roomsPerFloor = 10;
+        var floorHeight = 250; // Spazio per ogni piano
+
+        // Pulisci il canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        camere.forEach(function (camera, index) {
+            var floor = Math.floor(index / roomsPerFloor); // Calcola il piano
+            var x = (index % roomsPerFloor) * (roomWidth + padding) + padding; // Posizione orizzontale
+            var y = floor * floorHeight + padding; // Posizione verticale in base al piano
+
+            // Imposta il colore in base alla disponibilità
+            ctx.fillStyle = camera.disponibile ? 'green' : 'red';
+
+            // Aggiungi ombra e bordi arrotondati
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 5;
+            ctx.lineJoin = "round";
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'black';
+
+            // Disegna la camera con bordi arrotondati
+            roundRect(ctx, x, y, roomWidth, roomHeight, 10, true, true);
+
+            // Disegna il numero della camera
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(camera.numero, x + roomWidth / 2, y + roomHeight / 2 + 5);
+
+            // Aggiungi il testo della tipologia sotto ogni camera
+            ctx.fillStyle = 'black';
+            ctx.font = '14px Arial';
+            ctx.fillText(camera.tipologia, x + roomWidth / 2, y + roomHeight + 15);
+
+            // Aggiungi coordinate per il clic
+            camera.x = x;
+            camera.y = y;
+            camera.width = roomWidth;
+            camera.height = roomHeight;
+        });
+    }
+
+    // Funzione per disegnare rettangoli con bordi arrotondati
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        if (typeof stroke === 'undefined') stroke = true;
+        if (typeof radius === 'undefined') radius = 5;
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (fill) ctx.fill();
+        if (stroke) ctx.stroke();
+    }
+
+    // Aggiungi evento click sulle camere
+    document.getElementById('mapCanvas').addEventListener('click', function (event) {
+        var canvas = document.getElementById('mapCanvas');
+        var rect = canvas.getBoundingClientRect();
+        var x = event.clientX - rect.left;
+        var y = event.clientY - rect.top;
+
+        camere.forEach(function (camera) {
+            if (x > camera.x && x < camera.x + camera.width && y > camera.y && y < camera.y + camera.height) {
+                if (camera.disponibile) {
+                    // Se la camera è disponibile, reindirizza alla pagina di prenotazione
+                    window.location.href = `/Prenotazione/AddClientePrenotazione`;
+                } else {
+                    // Se la camera è occupata, reindirizza alla pagina dei dettagli
+                    window.location.href = `/Prenotazione/Dettagli/${camera.numero}`;
+                }
+            }
+        });
+    });
+
+    // Chiamare la funzione per disegnare le camere
+    drawRooms();
+</script>

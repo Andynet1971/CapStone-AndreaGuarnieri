@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace CapStone_AndreaGuarnieri.Models
 {
@@ -33,7 +34,15 @@ namespace CapStone_AndreaGuarnieri.Models
         [Required]
         public string TipoSoggiorno { get; set; }
 
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Il Prezzo Totale deve essere maggiore o uguale a 0.")]
+        public decimal PrezzoTotale { get; set; } = 0; // Valore predefinito
+
+        [Required]
+        public bool Confermata { get; set; } = false; // Valore predefinito
+
         public Camera Camera { get; set; }
         public Cliente Cliente { get; set; }
+        public ICollection<ServizioAggiuntivo> ServiziAggiuntivi { get; set; }
     }
 }

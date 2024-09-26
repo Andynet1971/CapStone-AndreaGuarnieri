@@ -18,5 +18,9 @@ namespace CapStone_AndreaGuarnieri.Models.Services
             // Chiama il metodo dal data access per ottenere tutti i servizi
             return _servizioDataAccess.GetAllServizi();
         }
+        public Servizio GetServizioById(int id)
+        {
+            return _servizioDataAccess.GetServizioById(id);
+        }
     }
 }

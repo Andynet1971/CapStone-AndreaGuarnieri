@@ -17,29 +17,31 @@ namespace CapStone_AndreaGuarnieri.DataAccess
         // Metodo per ottenere tutte le camere disponibili
         public IEnumerable<Camera> GetCamereDisponibili()
         {
-            var camere = new List<Camera>();
+            var camereDisponibili = new List<Camera>();
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                var command = new SqlCommand("SELECT * FROM Camere WHERE Disponibile = 1", connection);
-                connection.Open();
-                var reader = command.ExecuteReader();
+                var query = "SELECT * FROM Camere WHERE Disponibile = 1";
+                var command = new SqlCommand(query, connection);
 
-                while (reader.Read())
+                connection.Open();
+                using (var reader = command.ExecuteReader())
                 {
-                    var camera = new Camera
+                    while (reader.Read())
                     {
-                        Numero = reader.GetInt32(reader.GetOrdinal("Numero")),
-                        Descrizione = reader.GetString(reader.GetOrdinal("Descrizione")),
-                        Tipologia = reader.GetString(reader.GetOrdinal("Tipologia")),
-                        TariffaGiornaliera = reader.GetDecimal(reader.GetOrdinal("TariffaGiornaliera")),
-                        Disponibile = reader.GetBoolean(reader.GetOrdinal("Disponibile"))
-                    };
-                    camere.Add(camera);
+                        camereDisponibili.Add(new Camera
+                        {
+                            Numero = reader.GetInt32(reader.GetOrdinal("Numero")),
+                            Descrizione = reader.GetString(reader.GetOrdinal("Descrizione")),
+                            Tipologia = reader.GetString(reader.GetOrdinal("Tipologia")),
+                            TariffaGiornaliera = reader.GetDecimal(reader.GetOrdinal("TariffaGiornaliera")),
+                            Disponibile = reader.GetBoolean(reader.GetOrdinal("Disponibile"))
+                        });
+                    }
                 }
             }
 
-            return camere;
+            return camereDisponibili;
         }
 
         // Metodo per ottenere una camera in base al numero (ID)
@@ -68,5 +70,78 @@ namespace CapStone_AndreaGuarnieri.DataAccess
 
             return null;
         }
+        public Camera GetCameraById(int cameraID)
+        {
+            Camera camera = null;
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM Camere WHERE Numero = @CameraID";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CameraID", cameraID);
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        camera = new Camera
+                        {
+                            Numero = reader.GetInt32(reader.GetOrdinal("Numero")),
+                            Descrizione = reader.GetString(reader.GetOrdinal("Descrizione")),
+                            Tipologia = reader.GetString(reader.GetOrdinal("Tipologia")),
+                            TariffaGiornaliera = reader.GetDecimal(reader.GetOrdinal("TariffaGiornaliera")),
+                            Disponibile = reader.GetBoolean(reader.GetOrdinal("Disponibile"))
+                        };
+                    }
+                }
+            }
+
+            return camera;
+        }
+
+        public void SetDisponibile(int cameraID, bool disponibile)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string query = "UPDATE Camere SET Disponibile = @Disponibile WHERE Numero = @CameraID";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Disponibile", disponibile);
+                command.Parameters.AddWithValue("@CameraID", cameraID);
+
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+        public IEnumerable<Camera> GetCamereByTipologia(string tipologia)
+        {
+            var camereByTipologia = new List<Camera>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM Camere WHERE Tipologia = @Tipologia";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Tipologia", tipologia);
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        camereByTipologia.Add(new Camera
+                        {
+                            Numero = reader.GetInt32(reader.GetOrdinal("Numero")),
+                            Descrizione = reader.GetString(reader.GetOrdinal("Descrizione")),
+                            Tipologia = reader.GetString(reader.GetOrdinal("Tipologia")),
+                            TariffaGiornaliera = reader.GetDecimal(reader.GetOrdinal("TariffaGiornaliera")),
+                            Disponibile = reader.GetBoolean(reader.GetOrdinal("Disponibile"))
+                        });
+                    }
+                }
+            }
+
+            return camereByTipologia;
+        }
+
     }
 }

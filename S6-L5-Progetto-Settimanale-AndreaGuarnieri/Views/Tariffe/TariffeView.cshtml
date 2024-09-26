@@ -1,0 +1,44 @@
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.ViewModels.TariffaViewModel>
+
+<h2>Gestione Tariffe</h2>
+
+<form asp-action="SalvaModifiche" method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tipo Stagione</th>
+                <th>Tipo Camera</th>
+                <th>Tariffa Giornaliera</th>
+                <th>Data Inizio</th>
+                <th>Data Fine</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tariffa in Model)
+            {
+                <tr>
+                    <input type="hidden" asp-for="@tariffa.ID" name="Tariffe[@tariffa.ID].ID" />
+                    <td>
+                        <input asp-for="@tariffa.TipoStagione" class="form-control" name="Tariffe[@tariffa.ID].TipoStagione" />
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.TipoCamera" class="form-control" name="Tariffe[@tariffa.ID].TipoCamera" />
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.TariffaGiornaliera" class="form-control" name="Tariffe[@tariffa.ID].TariffaGiornaliera" />
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.DataInizio" type="date" class="form-control" name="Tariffe[@tariffa.ID].DataInizio" />
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.DataFine" type="date" class="form-control" name="Tariffe[@tariffa.ID].DataFine" />
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-success">Salva</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

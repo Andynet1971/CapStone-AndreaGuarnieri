@@ -6,6 +6,8 @@ namespace CapStone_AndreaGuarnieri.Models.Interfaces
     {
         void AddServizioAggiuntivo(ServizioAggiuntivo servizioAggiuntivo);
         IEnumerable<ServizioAggiuntivo> GetServiziAggiuntiviByPrenotazioneId(int prenotazioneID);
-        IEnumerable<Servizio> GetAllServizi(); // Aggiungi questo metodo all'interfaccia
+        IEnumerable<Servizio> GetAllServizi(); 
+        void UpdateServizioAggiuntivo(ServizioAggiuntivo servizioAggiuntivo);
+        void DeleteServizioAggiuntivo(int id);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CapStone_AndreaGuarnieri.Models.Interfaces;
-using CapStone_AndreaGuarnieri.Models;
-using System;
-using System.Collections.Generic;
+using System.Globalization;
+using Microsoft.Extensions.Logging;
+using CapStone_AndreaGuarnieri.Models.ViewModels;
 
 namespace CapStone_AndreaGuarnieri.Models.Services
 {
@@ -9,6 +9,7 @@ namespace CapStone_AndreaGuarnieri.Models.Services
     {
         private readonly IPrenotazione _prenotazioneDataAccess;
         private readonly IServizioAggiuntivo _servizioAggiuntivoDataAccess;
+        private readonly ILogger<PrenotazioneService> _logger;
 
         // Costruttore che inizializza il data access per le prenotazioni e i servizi aggiuntivi
         public PrenotazioneService(IPrenotazione prenotazioneDataAccess, IServizioAggiuntivo servizioAggiuntivoDataAccess)
@@ -18,9 +19,50 @@ namespace CapStone_AndreaGuarnieri.Models.Services
         }
 
         // Metodo per ottenere tutte le prenotazioni
-        public IEnumerable<Prenotazione> GetAllPrenotazioni()
+        public IEnumerable<PrenotazioneConCliente> GetAllPrenotazioni()
         {
-            return _prenotazioneDataAccess.GetAllPrenotazioni();
+            var prenotazioniViewModels = _prenotazioneDataAccess.GetAllPrenotazioni();
+
+            // Mappare PrenotazioneViewModel a PrenotazioneConCliente
+            var prenotazioniConCliente = prenotazioniViewModels.Select(pvm => new PrenotazioneConCliente
+            {
+                ID = pvm.ID,
+                ClienteID = pvm.ClienteID,
+                Cognome = pvm.Cognome,  // Include Cognome
+                Nome = pvm.Nome,        // Include Nome
+                CameraID = pvm.CameraID,
+                DataPrenotazione = pvm.DataPrenotazione,
+                NumeroProgressivo = pvm.NumeroProgressivo,
+                Anno = pvm.Anno,
+                DataInizio = pvm.DataInizio,
+                DataFine = pvm.DataFine,
+                Caparra = pvm.Caparra,
+                TipoSoggiorno = pvm.TipoSoggiorno,
+                PrezzoTotale = pvm.PrezzoTotale,
+                Confermata = pvm.Confermata
+            });
+
+            return prenotazioniConCliente;
+        }
+        public void UpdatePrenotazione(DettaglioPrenotazioneViewModel model)
+        {
+            var prenotazione = new Prenotazione
+            {
+                ID = model.ID,
+                ClienteID = model.ClienteID,
+                CameraID = model.CameraID,
+                DataPrenotazione = model.DataPrenotazione,
+                NumeroProgressivo = model.NumeroProgressivo,
+                Anno = model.Anno,
+                DataInizio = model.DataInizio,
+                DataFine = model.DataFine,
+                Caparra = model.Caparra,
+                TipoSoggiorno = model.TipoSoggiorno,
+                PrezzoTotale = model.PrezzoTotale,
+                Confermata = model.Confermata
+            };
+
+            _prenotazioneDataAccess.UpdatePrenotazione(prenotazione);
         }
 
         // Metodo per ottenere una prenotazione in base all'ID
@@ -41,12 +83,6 @@ namespace CapStone_AndreaGuarnieri.Models.Services
             return _servizioAggiuntivoDataAccess.GetServiziAggiuntiviByPrenotazioneId(prenotazioneID);
         }
 
-        // Metodo per ottenere le prenotazioni in base al codice fiscale
-        public IEnumerable<Prenotazione> GetPrenotazioniByCodiceFiscale(string codiceFiscale)
-        {
-            return _prenotazioneDataAccess.GetPrenotazioniByCodiceFiscale(codiceFiscale);
-        }
-
         // Metodo per ottenere il conteggio delle diverse tipologie di soggiorno
         public Dictionary<string, int> GetTipologiaSoggiornoCounts()
         {
@@ -59,13 +95,39 @@ namespace CapStone_AndreaGuarnieri.Models.Services
             return _prenotazioneDataAccess.GetNextProgressiveNumber();
         }
 
-        // Metodo aggiuntivo per ottenere le tariffe per un periodo e una camera specifica
+        // Metodo per ottenere le tariffe per un periodo e una camera specifica
         public List<Tariffa> GetTariffePerPeriodo(DateTime dataInizio, DateTime dataFine, int cameraId)
         {
             return _prenotazioneDataAccess.GetTariffePerPeriodo(dataInizio, dataFine, cameraId);
         }
 
-        // Metodo per ottenere il tasso di occupazione per un intervallo di date
+        // Metodo per ottenere gli incassi per un intervallo di date
+        public List<decimal> GetIncassi(List<DateTime> date)
+        {
+            var incassi = new List<decimal>();
+
+            foreach (var data in date)
+            {
+                var incasso = _prenotazioneDataAccess.GetIncassoPerData(data);
+                incassi.Add(incasso);
+            }
+
+            return incassi;
+        }
+
+        // Metodo per ottenere la somma settimanale dei servizi aggiuntivi
+        public List<decimal> GetSommaServiziAggiuntivi(List<DateTime> date)
+        {
+            var sommeSettimanali = new List<decimal>();
+
+            foreach (var settimana in date.GroupBy(d => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(d, CalendarWeekRule.FirstDay, DayOfWeek.Monday)))
+            {
+                decimal sommaServizi = _prenotazioneDataAccess.OttieniSommaServiziPerSettimana(settimana.Key);
+                sommeSettimanali.Add(sommaServizi);
+            }
+
+            return sommeSettimanali;
+        }
         public List<int> GetTassoOccupazione(List<DateTime> date)
         {
             var tassiOccupazione = new List<int>();
@@ -85,18 +147,23 @@ namespace CapStone_AndreaGuarnieri.Models.Services
 
             return tassiOccupazione;
         }
-        // Metodo per ottenere gli incassi per un intervallo di date
-        public List<decimal> GetIncassi(List<DateTime> date)
+        // Metodo per ottenere le prenotazioni tramite ID del cliente
+        public IEnumerable<Prenotazione> GetPrenotazioniByClienteId(string codiceFiscale)
         {
-            var incassi = new List<decimal>();
+            return _prenotazioneDataAccess.GetPrenotazioniByClienteId(codiceFiscale);
+        }
+        public Prenotazione GetPrenotazioneById(int id)
+        {
+            return _prenotazioneDataAccess.GetPrenotazioneById(id);
+        }
+        public IEnumerable<Prenotazione> GetPrenotazioniNonConfermate()
+        {
+            return _prenotazioneDataAccess.GetPrenotazioniNonConfermate();
+        }
 
-            foreach (var data in date)
-            {
-                var incasso = _prenotazioneDataAccess.GetIncassoPerData(data); // Dovrai implementare questo metodo nel data access
-                incassi.Add(incasso);
-            }
-
-            return incassi;
+        public Prenotazione GetPrenotazioneNonConfermataByCameraId(int cameraID)
+        {
+            return _prenotazioneDataAccess.GetPrenotazioneNonConfermataByCameraId(cameraID);
         }
     }
 }

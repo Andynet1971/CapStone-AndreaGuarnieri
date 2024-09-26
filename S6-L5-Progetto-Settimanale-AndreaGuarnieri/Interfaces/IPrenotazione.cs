@@ -1,20 +1,28 @@
-﻿namespace CapStone_AndreaGuarnieri.Models.Interfaces
+﻿using CapStone_AndreaGuarnieri.Models.ViewModels;
+
+namespace CapStone_AndreaGuarnieri.Models.Interfaces
 {
     public interface IPrenotazione
     {
-        // Metodi esistenti
+        // Metodi per la gestione delle prenotazioni
         Prenotazione GetPrenotazione(int id);
         void AddPrenotazione(Prenotazione prenotazione);
-        IEnumerable<Prenotazione> GetAllPrenotazioni();
-        IEnumerable<Prenotazione> GetPrenotazioniByCodiceFiscale(string codiceFiscale);
+        IEnumerable<PrenotazioneViewModel> GetAllPrenotazioni();
         Dictionary<string, int> GetTipologiaSoggiornoCounts();
         int GetNextProgressiveNumber();
         List<Tariffa> GetTariffePerPeriodo(DateTime dataInizio, DateTime dataFine, int cameraId);
 
-        // Nuovi metodi per lo storico delle presenze
+        // Metodo per ottenere le prenotazioni per una data specifica
         IEnumerable<Prenotazione> GetPrenotazioniPerData(DateTime data);
-        int GetNumeroStanzeTotali();
-        // Metodo per ottenere gli incassi per una data specifica
+
+        // Metodi per tariffe e servizi aggiuntivi
+        decimal OttieniSommaServiziPerSettimana(int numeroSettimana);
         decimal GetIncassoPerData(DateTime data);
+        int GetNumeroStanzeTotali();
+        IEnumerable<Prenotazione> GetPrenotazioniByClienteId(string clienteId);
+        Prenotazione GetPrenotazioneById(int id);
+        void UpdatePrenotazione(Prenotazione prenotazione);
+        IEnumerable<Prenotazione> GetPrenotazioniNonConfermate();
+        Prenotazione GetPrenotazioneNonConfermataByCameraId(int cameraID);
     }
 }

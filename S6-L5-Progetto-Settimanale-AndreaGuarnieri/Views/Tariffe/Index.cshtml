@@ -1,0 +1,89 @@
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.ViewModels.TariffaViewModel>
+
+<h2>Gestione Tariffe</h2>
+
+<form asp-action="SalvaModifiche" method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tipo Stagione</th>
+                <th>Tipo Camera</th>
+                <th>Tariffa Giornaliera</th>
+                <th>Data Inizio</th>
+                <th>Data Fine</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody id="tariffeTableBody">
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                var tariffa = Model.ElementAt(i);
+                <tr data-tipo-stagione="@tariffa.TipoStagione" data-tipo-camera="@tariffa.TipoCamera">
+                    <input type="hidden" asp-for="@tariffa.ID" name="[@i].ID" />
+                    <td>
+                        <select class="form-control" name="[@i].TipoStagione" id="stagione_@i"></select>
+                    </td>
+                    <td>
+                        <select class="form-control" name="[@i].TipoCamera" id="camera_@i"></select>
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.TariffaGiornaliera" class="form-control" name="[@i].TariffaGiornaliera" />
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.DataInizio" type="date" class="form-control" name="[@i].DataInizio" />
+                    </td>
+                    <td>
+                        <input asp-for="@tariffa.DataFine" type="date" class="form-control" name="[@i].DataFine" />
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-success">Salva</button>
+                        <a asp-action="Delete" asp-route-id="@tariffa.ID" class="btn btn-danger">Elimina</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+<!-- Script per popolare dinamicamente i menu a tendina -->
+<script>
+    // Possibili valori per Tipo Stagione e Tipo Camera
+    var tipiStagione = ["Altissima", "Alta", "Media", "Bassa"];
+    var tipiCamera = ["Singola", "Doppia", "Suite"];
+
+    window.onload = function () {
+        var tariffaRows = document.querySelectorAll("#tariffeTableBody tr");
+
+        tariffaRows.forEach(function (row, index) {
+            // Recupera i valori del tipo di stagione e camera dal tr
+            var selectedStagione = row.getAttribute("data-tipo-stagione");
+            var selectedCamera = row.getAttribute("data-tipo-camera");
+
+            // Popola il menu a tendina per Tipo Stagione
+            var stagioneSelect = document.getElementById('stagione_' + index);
+            tipiStagione.forEach(function (stagione) {
+                var option = document.createElement('option');
+                option.value = stagione;
+                option.text = stagione;
+                if (stagione === selectedStagione) {
+                    option.selected = true;
+                }
+                stagioneSelect.appendChild(option);
+            });
+
+            // Popola il menu a tendina per Tipo Camera
+            var cameraSelect = document.getElementById('camera_' + index);
+            tipiCamera.forEach(function (camera) {
+                var option = document.createElement('option');
+                option.value = camera;
+                option.text = camera;
+                if (camera === selectedCamera) {
+                    option.selected = true;
+                }
+                cameraSelect.appendChild(option);
+            });
+        });
+    };
+</script>
+
+@await Html.PartialAsync("_CreateTariffa", new CapStone_AndreaGuarnieri.Models.ViewModels.TariffaViewModel())

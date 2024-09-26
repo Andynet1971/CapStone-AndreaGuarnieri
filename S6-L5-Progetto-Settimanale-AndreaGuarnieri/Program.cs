@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using CapStone_AndreaGuarnieri.Models.Interfaces;
 using CapStone_AndreaGuarnieri.Models.Services;
 using CapStone_AndreaGuarnieri.DataAccess;
-
+using CapStone_AndreaGuarnieri.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +11,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 // Configura l'autenticazione tramite cookie
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -32,7 +35,17 @@ builder.Services.AddScoped<ICamera>(provider => new CameraDataAccess(connectionS
 builder.Services.AddScoped<ICliente>(provider => new ClienteDataAccess(connectionString));
 builder.Services.AddScoped<IServizioAggiuntivo>(provider => new ServizioAggiuntivoDataAccess(connectionString));
 builder.Services.AddScoped<IUtente>(provider => new UtenteDataAccess(connectionString));
-builder.Services.AddScoped<IServizio>(provider => new ServizioDataAccess(connectionString)); // Aggiungi questa linea
+builder.Services.AddScoped<IServizio>(provider => new ServizioDataAccess(connectionString));
+
+// Aggiungi StoricoService e IStorico
+builder.Services.AddScoped<IStorico>(provider => new StoricoDataAccess(connectionString)); // Aggiungi IStorico e StoricoDataAccess
+builder.Services.AddScoped<StoricoService>(); // Aggiungi StoricoService
+
+// Aggiungi il servizio e il data access per la gestione delle tariffe
+builder.Services.AddScoped<ITariffeService, TariffeService>();
+builder.Services.AddScoped<TariffeDataAccess>(provider => new TariffeDataAccess(connectionString));
+
+
 
 builder.Services.AddScoped<CameraService>();
 builder.Services.AddScoped<ClienteService>();

@@ -1,42 +1,34 @@
 ﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.SearchViewModel
 
-@{
-    ViewData["Title"] = "Cerca Prenotazioni";
-}
+<h2>Ricerca Prenotazioni</h2>
 
-<div class="search-container">
-    <h1>Cerca Prenotazioni</h1>
+<!-- Form per la ricerca -->
+<form method="post" id="searchForm">
+    <input type="text" id="searchQuery" name="query" placeholder="Cerca per Codice Fiscale o Cognome" autocomplete="off" />
+    <button type="submit">Cerca</button>
+</form>
 
-    <div class="form-group">
-        <label for="CodiceFiscale">Codice Fiscale</label>
-        <input type="text" class="form-control" id="CodiceFiscale" name="CodiceFiscale" />
-    </div>
-    <button id="cercaButton" class="btn btn-primary">Cerca</button>
-</div>
+<!-- Area dove visualizzare i risultati della ricerca -->
+<div id="searchResults"></div>
 
-<div id="searchResults" class="search-results"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $("#cercaButton").click(function () {
-                var codiceFiscale = $("#CodiceFiscale").val();
-                $.ajax({
-                    url: '@Url.Action("Search", "Prenotazione")',
-                    type: 'POST',
-                    data: { codiceFiscale: codiceFiscale },
-                    success: function (result) {
-                        if (result.success === false) {
-                            alert(result.message);
-                        } else {
-                            $("#searchResults").html(result);
-                        }
-                    },
-                    error: function () {
-                        alert("Errore nella ricerca delle prenotazioni.");
-                    }
-                });
-            });
+<script>
+    // Funzione per gestire la ricerca al submit del form
+    $(document).on('submit', '#searchForm', function (e) {
+        e.preventDefault();  // Evita il caricamento della pagina
+        var query = $('#searchQuery').val();
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Search", "Prenotazione")',
+            data: { query: query },
+            success: function (response) {
+                $('#searchResults').html(response);  // Visualizza la vista parziale con i risultati
+            },
+            error: function () {
+                $('#searchResults').html('<p>Errore nella ricerca.</p>');
+            }
         });
-    </script>
-}
+    });
+</script>

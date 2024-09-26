@@ -15,29 +15,35 @@ namespace CapStone_AndreaGuarnieri.Controllers
         private readonly CameraService _cameraService;
         private readonly ServizioAggiuntivoService _servizioAggiuntivoService;
         private readonly ServizioService _servizioService;
+        private readonly ILogger<PrenotazioneController> _logger;
 
         public PrenotazioneController(
             PrenotazioneService prenotazioneService,
             ClienteService clienteService,
             CameraService cameraService,
             ServizioAggiuntivoService servizioAggiuntivoService,
-            ServizioService servizioService)
+            ServizioService servizioService,
+            ILogger<PrenotazioneController> logger) // Iniezione del logger
         {
             _prenotazioneService = prenotazioneService;
             _clienteService = clienteService;
             _cameraService = cameraService;
             _servizioAggiuntivoService = servizioAggiuntivoService;
             _servizioService = servizioService;
+            _logger = logger; // Assegna il logger al campo privato
         }
 
         // Metodo per visualizzare la lista di tutte le prenotazioni
         public IActionResult Index()
         {
             var prenotazioni = _prenotazioneService.GetAllPrenotazioni()
+                .Where(p => p.Confermata == false)  // Filtro per prenotazioni non confermate
                 .Select(p => new PrenotazioneViewModel
                 {
                     ID = p.ID,
                     ClienteID = p.ClienteID,
+                    Cognome = p.Cognome, // Assicurati che questi campi siano popolati correttamente
+                    Nome = p.Nome,
                     CameraID = p.CameraID,
                     DataPrenotazione = p.DataPrenotazione,
                     NumeroProgressivo = p.NumeroProgressivo,
@@ -45,9 +51,117 @@ namespace CapStone_AndreaGuarnieri.Controllers
                     DataInizio = p.DataInizio,
                     DataFine = p.DataFine,
                     Caparra = p.Caparra,
-                    TipoSoggiorno = p.TipoSoggiorno
+                    TipoSoggiorno = p.TipoSoggiorno,
+                    PrezzoTotale = p.PrezzoTotale,
+                    Confermata = p.Confermata
                 }).ToList();
+
             return View(prenotazioni);
+        }
+
+
+
+        // Metodo per visualizzare la lista di tutte le prenotazioni
+        public IActionResult Dettagli(int id)
+        {
+            var prenotazione = _prenotazioneService.GetPrenotazioneById(id);
+
+            if (prenotazione == null)
+            {
+                return NotFound();
+            }
+
+            // Recupera le camere disponibili
+            var camereDisponibili = _cameraService.GetCamereDisponibili()
+                .Select(c => new
+                {
+                    Numero = c.Numero,
+                    CameraDisplay = $"{c.Numero} - {c.Tipologia}" // Combina Numero e Tipologia
+                })
+                .ToList();
+
+            // Aggiungi la camera attuale alla lista delle camere disponibili, anche se non è disponibile
+            var cameraAttuale = _cameraService.GetCameraById(prenotazione.CameraID);
+            if (cameraAttuale != null && !camereDisponibili.Any(c => c.Numero == cameraAttuale.Numero))
+            {
+                camereDisponibili.Add(new { Numero = cameraAttuale.Numero, CameraDisplay = $"{cameraAttuale.Numero} - {cameraAttuale.Tipologia}" });
+            }
+
+            var serviziAggiuntivi = _servizioAggiuntivoService.GetServiziAggiuntiviByPrenotazioneId(id)
+                .Select(sa => new ServizioAggiuntivoViewModel
+                {
+                    PrenotazioneID = sa.PrenotazioneID,
+                    ServizioID = sa.ServizioID,
+                    NomeServizio = sa.Servizio.Nome,
+                    TariffaServizio = sa.Servizio.Tariffa,
+                    Quantita = sa.Quantita,
+                    Data = sa.Data,
+                    ServiziDisponibili = _servizioService.GetAllServizi().ToList()
+                })
+                .ToList();
+
+            var model = new DettaglioPrenotazioneViewModel
+            {
+                ID = prenotazione.ID,
+                ClienteID = prenotazione.ClienteID,
+                CameraID = prenotazione.CameraID,
+                CamereDisponibili = camereDisponibili.Select(c => new Camera { Numero = c.Numero, Descrizione = c.CameraDisplay }).ToList(),
+                DataPrenotazione = prenotazione.DataPrenotazione,
+                NumeroProgressivo = prenotazione.NumeroProgressivo,
+                Anno = prenotazione.Anno,
+                DataInizio = prenotazione.DataInizio,
+                DataFine = prenotazione.DataFine,
+                Caparra = prenotazione.Caparra,
+                TipoSoggiorno = prenotazione.TipoSoggiorno,
+                PrezzoTotale = prenotazione.PrezzoTotale,
+                Confermata = prenotazione.Confermata,
+
+                // Dettagli Cliente
+                Cognome = prenotazione.Cliente.Cognome,
+                Nome = prenotazione.Cliente.Nome,
+                Citta = prenotazione.Cliente.Citta,
+                Provincia = prenotazione.Cliente.Provincia,
+                Email = prenotazione.Cliente.Email,
+                Telefono = prenotazione.Cliente.Telefono,
+                Cellulare = prenotazione.Cliente.Cellulare,
+
+                // Aggiungi i servizi aggiuntivi
+                ServiziAggiuntivi = serviziAggiuntivi
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult SalvaDettagliPrenotazione(DettaglioPrenotazioneViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Se il modello non è valido, ricarica solo i campi necessari senza la camera
+                model.CamereDisponibili = _cameraService.GetCamereDisponibili().ToList(); // Se necessario
+                return View("Dettagli", model);
+            }
+
+            var prenotazione = _prenotazioneService.GetPrenotazioneById(model.ID);
+
+            if (prenotazione == null)
+            {
+                return NotFound();
+            }
+
+            // Rimuovi il codice che gestisce la logica di modifica delle camere
+            // Aggiorna la prenotazione e il cliente (senza camera)
+            _prenotazioneService.UpdatePrenotazione(model);
+            _clienteService.UpdateCliente(model);
+
+            // Rimane nella vista dei dettagli
+            return View("Dettagli", model);
+        }
+
+        public IActionResult EliminaServizioAggiuntivo(int id, int prenotazioneId)
+        {
+            _servizioAggiuntivoService.DeleteServizioAggiuntivo(id);
+            return RedirectToAction("Dettagli", new { id = prenotazioneId });
         }
 
         // Metodo GET per aggiungere una nuova prenotazione
@@ -105,44 +219,61 @@ namespace CapStone_AndreaGuarnieri.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // Metodo per visualizzare i dettagli di una prenotazione
-        public IActionResult Dettagli(int id)
-        {
-            var prenotazione = _prenotazioneService.GetPrenotazione(id);
-            return View(prenotazione);
-        }
-
         // Metodo GET per la ricerca delle prenotazioni
+        [HttpGet]
         public IActionResult Search()
         {
             return View(new SearchViewModel());
         }
 
-        // Metodo POST per la ricerca delle prenotazioni per Codice Fiscale
         [HttpPost]
-        public IActionResult Search(string codiceFiscale)
+        public IActionResult Search(string query)
         {
-            if (string.IsNullOrWhiteSpace(codiceFiscale))
+            Console.WriteLine("Metodo Search chiamato con query: " + query);
+
+            if (string.IsNullOrWhiteSpace(query))
             {
-                return Json(new { success = false, message = "Codice Fiscale non valido." });
+                Console.WriteLine("Query vuota o non valida.");
+                ViewBag.ErrorMessage = "Inserisci un codice fiscale o cognome valido.";
+                return PartialView("_NoResults");
             }
 
-            var result = _prenotazioneService.GetPrenotazioniByCodiceFiscale(codiceFiscale);
-            if (result != null && result.Any())
+            var cliente = _clienteService.GetClienteByCodiceFiscaleOrCognome(query);
+
+            if (cliente == null)
             {
-                return PartialView("SearchResult", result);
+                Console.WriteLine("Cliente non trovato.");
+                ViewBag.ErrorMessage = "Cliente non trovato.";
+                return PartialView("_NoResults");
             }
-            else
+
+            Console.WriteLine("Cliente trovato: " + cliente.Cognome + " " + cliente.Nome);
+
+            var prenotazioni = _prenotazioneService.GetPrenotazioniByClienteId(cliente.CodiceFiscale);
+
+            if (prenotazioni == null || !prenotazioni.Any())
             {
-                return Json(new { success = false, message = "Cliente non trovato." });
+                Console.WriteLine("Nessuna prenotazione trovata per il cliente.");
+                ViewBag.ErrorMessage = "Nessuna prenotazione trovata.";
+                return PartialView("_NoResults");
             }
+
+            Console.WriteLine($"Trovate {prenotazioni.Count()} prenotazioni per il cliente.");
+
+            var resultViewModel = prenotazioni.Select(p => new SearchResultViewModel
+            {
+                Cognome = cliente.Cognome,
+                Nome = cliente.Nome,
+                CodiceFiscale = cliente.CodiceFiscale,
+                DataInizio = p.DataInizio,
+                DataFine = p.DataFine,
+                NumeroProgressivo = p.NumeroProgressivo
+
+            }).ToList();
+
+            return PartialView("SearchResult", resultViewModel);
         }
 
-        // Metodo per visualizzare il conteggio delle tipologie di soggiorno
-        public IActionResult TipologiaSoggiorno()
-        {
-            return View();
-        }
 
         // Metodo POST per ottenere il conteggio delle tipologie di soggiorno
         [HttpPost]
@@ -207,37 +338,88 @@ namespace CapStone_AndreaGuarnieri.Controllers
         [HttpGet]
         public IActionResult AddServizioAggiuntivo(int id)
         {
+            // Recupera tutti i servizi disponibili tramite il service
+            var serviziDisponibili = _servizioService.GetAllServizi().ToList();
+
+            // Se nessun servizio è disponibile, ritorna un messaggio di errore
+            if (!serviziDisponibili.Any())
+            {
+                return NotFound("Nessun servizio disponibile.");
+            }
+
+            // Crea un nuovo ViewModel e passa i servizi disponibili
             var model = new ServizioAggiuntivoViewModel
             {
                 PrenotazioneID = id,
-                ServiziDisponibili = _servizioService.GetAllServizi().ToList(),
-                Data = DateTime.Now.Date
+                ServiziDisponibili = serviziDisponibili,  // Popola il dropdown con i servizi disponibili
+                TariffaServizio = serviziDisponibili.First().Tariffa,  // Imposta la tariffa del primo servizio disponibile
+                NomeServizio = serviziDisponibili.First().Nome,        // Imposta il nome del primo servizio
+                Data = DateTime.Now,  // Imposta la data odierna
+                Quantita = 1          // Imposta la quantità predefinita
             };
+
             return View(model);
         }
 
         // Metodo POST per aggiungere un nuovo servizio aggiuntivo
         [HttpPost]
-        public IActionResult AddServizioAggiuntivo(ServizioAggiuntivoViewModel model)
+        public IActionResult AddServizioAggiuntivo(ServizioAggiuntivoInputModel model)
         {
+            _logger.LogInformation("Inizio metodo POST AddServizioAggiuntivo");
+
             if (!ModelState.IsValid)
             {
-                model.ServiziDisponibili = _servizioService.GetAllServizi().ToList();
+                _logger.LogWarning("ModelState non valido");
+
+                foreach (var modelStateKey in ModelState.Keys)
+                {
+                    var value = ModelState[modelStateKey];
+                    foreach (var error in value.Errors)
+                    {
+                        _logger.LogError($"Errore per chiave {modelStateKey}: {error.ErrorMessage}");
+                    }
+                }
+
+                var serviziDisponibili = _servizioService.GetAllServizi().ToList();
+                var viewModel = new ServizioAggiuntivoViewModel
+                {
+                    PrenotazioneID = model.PrenotazioneID,
+                    ServizioID = model.ServizioID,
+                    Data = model.Data,
+                    Quantita = model.Quantita,
+                    ServiziDisponibili = serviziDisponibili
+                };
+
+                return View(viewModel); // Ritorna il ViewModel con i dati disponibili
+            }
+
+            try
+            {
+                var servizioAggiuntivo = new ServizioAggiuntivo
+                {
+                    PrenotazioneID = model.PrenotazioneID,
+                    ServizioID = model.ServizioID,
+                    Data = model.Data,
+                    Quantita = model.Quantita
+                };
+
+                _logger.LogInformation($"Aggiunta servizio aggiuntivo: PrenotazioneID = {model.PrenotazioneID}, ServizioID = {model.ServizioID}");
+
+                _servizioAggiuntivoService.AddServizioAggiuntivo(servizioAggiuntivo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Errore durante l'inserimento del servizio aggiuntivo");
+                ModelState.AddModelError(string.Empty, "Errore durante l'inserimento del servizio aggiuntivo.");
                 return View(model);
             }
 
-            var servizioAggiuntivo = new ServizioAggiuntivo
-            {
-                PrenotazioneID = model.PrenotazioneID,
-                ServizioID = model.ServizioID,
-                Data = model.Data,
-                Quantita = model.Quantita
-            };
-
-            _servizioAggiuntivoService.AddServizioAggiuntivo(servizioAggiuntivo);
+            _logger.LogInformation("Fine metodo POST AddServizioAggiuntivo");
 
             return RedirectToAction("Index", "Home");
         }
+
+
         public List<TariffaPeriodoViewModel> GetTariffePerPeriodo(DateTime dataInizioPrenotazione, DateTime dataFinePrenotazione, int cameraId)
         {
             var tariffePerPeriodo = new List<TariffaPeriodoViewModel>();
@@ -313,6 +495,29 @@ namespace CapStone_AndreaGuarnieri.Controllers
             }
 
             return tariffePerPeriodo;
+        }
+        public IActionResult CamerePerTipologia(string tipologia)
+        {
+            var camere = _cameraService.GetCamereByTipologia(tipologia);
+
+            if (camere == null || !camere.Any())
+            {
+                return NotFound($"Nessuna camera trovata per la tipologia: {tipologia}");
+            }
+
+            return View(camere); // Assicurati di avere una vista che visualizzi le camere
+        }
+        public IActionResult GetPrenotazioneByCameraId(int cameraID)
+        {
+            var prenotazione = _prenotazioneService.GetPrenotazioneNonConfermataByCameraId(cameraID);
+
+            if (prenotazione == null)
+            {
+                return NotFound();
+            }
+
+            // Reindirizza alla pagina dei dettagli usando il numero progressivo
+            return RedirectToAction("Dettagli", new { id = prenotazione.NumeroProgressivo });
         }
 
     }

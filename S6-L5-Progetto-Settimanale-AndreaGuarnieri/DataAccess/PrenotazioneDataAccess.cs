@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using CapStone_AndreaGuarnieri.Models;
 using CapStone_AndreaGuarnieri.Models.Interfaces;
+using CapStone_AndreaGuarnieri.Models.ViewModels;
 
 namespace CapStone_AndreaGuarnieri.DataAccess
 {
     public class PrenotazioneDataAccess : IPrenotazione
     {
         private readonly string _connectionString;
+        private readonly ILogger<PrenotazioneDataAccess> _logger;
 
         // Costruttore che inizializza la stringa di connessione
         public PrenotazioneDataAccess(string connectionString)
@@ -47,6 +47,44 @@ namespace CapStone_AndreaGuarnieri.DataAccess
 
             return prenotazioni;
         }
+
+        public void UpdatePrenotazione(Prenotazione prenotazione)
+        {
+            var query = @"UPDATE Prenotazioni 
+                  SET DataPrenotazione = @DataPrenotazione, 
+                      NumeroProgressivo = @NumeroProgressivo, 
+                      Anno = @Anno, 
+                      DataInizio = @DataInizio, 
+                      DataFine = @DataFine, 
+                      Caparra = @Caparra, 
+                      TipoSoggiorno = @TipoSoggiorno, 
+                      PrezzoTotale = @PrezzoTotale, 
+                      Confermata = @Confermata
+                  WHERE ID = @ID";
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand(query, connection))
+                {
+                    // Aggiungi tutti i parametri senza CameraID
+                    command.Parameters.AddWithValue("@ID", prenotazione.ID);
+                    command.Parameters.AddWithValue("@DataPrenotazione", prenotazione.DataPrenotazione != DateTime.MinValue ? prenotazione.DataPrenotazione : DateTime.Now);
+                    command.Parameters.AddWithValue("@NumeroProgressivo", prenotazione.NumeroProgressivo);
+                    command.Parameters.AddWithValue("@Anno", prenotazione.Anno);
+                    command.Parameters.AddWithValue("@DataInizio", prenotazione.DataInizio != DateTime.MinValue ? prenotazione.DataInizio : DateTime.Now);
+                    command.Parameters.AddWithValue("@DataFine", prenotazione.DataFine != DateTime.MinValue ? prenotazione.DataFine : DateTime.Now);
+                    command.Parameters.AddWithValue("@Caparra", prenotazione.Caparra);
+                    command.Parameters.AddWithValue("@TipoSoggiorno", prenotazione.TipoSoggiorno);
+                    command.Parameters.AddWithValue("@PrezzoTotale", prenotazione.PrezzoTotale);
+                    command.Parameters.AddWithValue("@Confermata", prenotazione.Confermata);
+
+                    // Esegui il comando di aggiornamento
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
 
         // Metodo per ottenere il numero totale di stanze dell'hotel
         public int GetNumeroStanzeTotali()
@@ -118,9 +156,6 @@ namespace CapStone_AndreaGuarnieri.DataAccess
 
             return tariffe;
         }
-
-
-        // Aggiungi qui il resto dei tuoi metodi come GetPrenotazione, AddPrenotazione, ecc.
 
         // Metodo per ottenere una prenotazione in base all'ID
         public Prenotazione GetPrenotazione(int id)
@@ -206,86 +241,74 @@ namespace CapStone_AndreaGuarnieri.DataAccess
         }
 
         // Metodo per ottenere tutte le prenotazioni
-        public IEnumerable<Prenotazione> GetAllPrenotazioni()
+        public IEnumerable<PrenotazioneViewModel> GetAllPrenotazioni()
         {
-            var prenotazioni = new List<Prenotazione>();
+            var prenotazioni = new List<PrenotazioneViewModel>();
 
-            try
+            using (var connection = new SqlConnection(_connectionString))
             {
-                using (var connection = new SqlConnection(_connectionString))
-                using (var command = new SqlCommand("SELECT * FROM Prenotazioni", connection))
+                var query = @"
+            SELECT p.ID, p.ClienteID, c.Cognome, c.Nome, p.CameraID, p.DataPrenotazione, 
+                   p.DataInizio, p.DataFine, p.Caparra, p.TipoSoggiorno, p.PrezzoTotale, p.Confermata
+            FROM Prenotazioni p
+            INNER JOIN Clienti c ON p.ClienteID = c.CodiceFiscale";
+
+                using (var command = new SqlCommand(query, connection))
                 {
                     connection.Open();
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            prenotazioni.Add(new Prenotazione
+                            prenotazioni.Add(new PrenotazioneViewModel
                             {
                                 ID = reader.GetInt32(reader.GetOrdinal("ID")),
                                 ClienteID = reader.GetString(reader.GetOrdinal("ClienteID")),
+                                Cognome = reader.GetString(reader.GetOrdinal("Cognome")),  // Recupera il cognome
+                                Nome = reader.GetString(reader.GetOrdinal("Nome")),        // Recupera il nome
                                 CameraID = reader.GetInt32(reader.GetOrdinal("CameraID")),
                                 DataPrenotazione = reader.GetDateTime(reader.GetOrdinal("DataPrenotazione")),
-                                NumeroProgressivo = reader.GetInt32(reader.GetOrdinal("NumeroProgressivo")),
-                                Anno = reader.GetInt32(reader.GetOrdinal("Anno")),
                                 DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
                                 DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
                                 Caparra = reader.GetDecimal(reader.GetOrdinal("Caparra")),
-                                TipoSoggiorno = reader.GetString(reader.GetOrdinal("TipoSoggiorno"))
+                                TipoSoggiorno = reader.GetString(reader.GetOrdinal("TipoSoggiorno")),
+                                PrezzoTotale = reader.GetDecimal(reader.GetOrdinal("PrezzoTotale")),
+                                Confermata = reader.GetBoolean(reader.GetOrdinal("Confermata"))
                             });
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                // Log dell'eccezione (da implementare)
-                throw new Exception("Errore durante il recupero di tutte le prenotazioni", ex);
             }
 
             return prenotazioni;
         }
 
-        // Metodo per ottenere le prenotazioni in base al codice fiscale
-        public IEnumerable<Prenotazione> GetPrenotazioniByCodiceFiscale(string codiceFiscale)
+
+        // Implementazione del metodo per ottenere le prenotazioni tramite Codice Fiscale
+        public IEnumerable<Prenotazione> GetPrenotazioniByClienteId(string codiceFiscale)
         {
             var prenotazioni = new List<Prenotazione>();
 
-            try
+            using (var connection = new SqlConnection(_connectionString))
             {
-                using (var connection = new SqlConnection(_connectionString))
-                using (var command = new SqlCommand("SELECT * FROM Prenotazioni WHERE ClienteID = @ClienteID", connection))
-                {
-                    command.Parameters.AddWithValue("@ClienteID", codiceFiscale);
+                string sql = "SELECT * FROM Prenotazioni WHERE ClienteID = @codiceFiscale";
+                var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@codiceFiscale", codiceFiscale);
 
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        prenotazioni.Add(new Prenotazione
                         {
-                            prenotazioni.Add(new Prenotazione
-                            {
-                                ID = reader.GetInt32(reader.GetOrdinal("ID")),
-                                ClienteID = reader.GetString(reader.GetOrdinal("ClienteID")),
-                                CameraID = reader.GetInt32(reader.GetOrdinal("CameraID")),
-                                DataPrenotazione = reader.GetDateTime(reader.GetOrdinal("DataPrenotazione")),
-                                NumeroProgressivo = reader.GetInt32(reader.GetOrdinal("NumeroProgressivo")),
-                                Anno = reader.GetInt32(reader.GetOrdinal("Anno")),
-                                DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
-                                DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
-                                Caparra = reader.GetDecimal(reader.GetOrdinal("Caparra")),
-                                TipoSoggiorno = reader.GetString(reader.GetOrdinal("TipoSoggiorno"))
-                            });
-                        }
+                            DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
+                            DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
+                            // altre proprietà
+                        });
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                // Log dell'eccezione (da implementare)
-                throw new Exception("Errore durante il recupero delle prenotazioni per codice fiscale", ex);
-            }
-
             return prenotazioni;
         }
 
@@ -355,6 +378,180 @@ namespace CapStone_AndreaGuarnieri.DataAccess
 
             return incasso;
         }
+        // Metodo per ottenere la somma dei servizi aggiuntivi per una settimana specifica
+        public decimal OttieniSommaServiziPerSettimana(int numeroSettimana)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var command = new SqlCommand(
+                    @"SELECT SUM(SA.Quantita) 
+              FROM ServiziAggiuntivi SA
+              JOIN Prenotazioni P ON SA.PrenotazioneID = P.ID
+              WHERE DATEPART(WEEK, P.DataPrenotazione) = @NumeroSettimana", connection);
 
+                command.Parameters.AddWithValue("@NumeroSettimana", numeroSettimana);
+
+                connection.Open();
+                var result = command.ExecuteScalar();
+                var totaleServizi = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+
+                // Log del risultato per verificare
+                Console.WriteLine($"Settimana: {numeroSettimana}, Totale Servizi: {totaleServizi}");
+
+                return totaleServizi;
+            }
+        }
+        public IEnumerable<PrenotazioneViewModel> GetPrenotazioniConClienti()
+        {
+            var prenotazioni = new List<PrenotazioneViewModel>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"SELECT p.ID, p.ClienteID, c.Cognome, c.Nome, p.CameraID, p.DataInizio, p.DataFine, p.Caparra, p.TipoSoggiorno
+                      FROM Prenotazioni p
+                      INNER JOIN Clienti c ON p.ClienteID = c.CodiceFiscale";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var prenotazione = new PrenotazioneViewModel
+                            {
+                                ID = reader.GetInt32(reader.GetOrdinal("ID")),
+                                ClienteID = reader.GetString(reader.GetOrdinal("ClienteID")),
+                                Cognome = reader.GetString(reader.GetOrdinal("Cognome")),
+                                Nome = reader.GetString(reader.GetOrdinal("Nome")),
+                                CameraID = reader.GetInt32(reader.GetOrdinal("CameraID")),
+                                DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
+                                DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
+                                Caparra = reader.GetDecimal(reader.GetOrdinal("Caparra")),
+                                TipoSoggiorno = reader.GetString(reader.GetOrdinal("TipoSoggiorno"))
+                            };
+                            prenotazioni.Add(prenotazione);
+                        }
+                    }
+                }
+            }
+
+            return prenotazioni;
+        }
+        public Prenotazione GetPrenotazioneById(int id)
+        {
+            Prenotazione prenotazione = null;
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = @"
+            SELECT p.ID, p.ClienteID, p.CameraID, p.DataPrenotazione, p.NumeroProgressivo, 
+                   p.Anno, p.DataInizio, p.DataFine, p.Caparra, p.TipoSoggiorno, p.PrezzoTotale, p.Confermata,
+                   c.Cognome, c.Nome, c.Citta, c.Provincia, c.Email, c.Telefono, c.Cellulare
+            FROM Prenotazioni p
+            INNER JOIN Clienti c ON p.ClienteID = c.CodiceFiscale
+            WHERE p.ID = @ID";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ID", id);
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            prenotazione = new Prenotazione
+                            {
+                                ID = reader.GetInt32(reader.GetOrdinal("ID")),
+                                ClienteID = reader.GetString(reader.GetOrdinal("ClienteID")),
+                                CameraID = reader.GetInt32(reader.GetOrdinal("CameraID")),
+                                DataPrenotazione = reader.GetDateTime(reader.GetOrdinal("DataPrenotazione")),
+                                NumeroProgressivo = reader.GetInt32(reader.GetOrdinal("NumeroProgressivo")),
+                                Anno = reader.GetInt32(reader.GetOrdinal("Anno")),
+                                DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
+                                DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
+                                Caparra = reader.GetDecimal(reader.GetOrdinal("Caparra")),
+                                TipoSoggiorno = reader.GetString(reader.GetOrdinal("TipoSoggiorno")),
+                                PrezzoTotale = reader.GetDecimal(reader.GetOrdinal("PrezzoTotale")),
+                                Confermata = reader.GetBoolean(reader.GetOrdinal("Confermata")),
+                                Cliente = new Cliente
+                                {
+                                    Cognome = reader.GetString(reader.GetOrdinal("Cognome")),
+                                    Nome = reader.GetString(reader.GetOrdinal("Nome")),
+                                    Citta = reader.GetString(reader.GetOrdinal("Citta")),
+                                    Provincia = reader.GetString(reader.GetOrdinal("Provincia")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                    Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                                    Cellulare = reader.GetString(reader.GetOrdinal("Cellulare"))
+                                }
+                            };
+                        }
+                    }
+                }
+            }
+
+            return prenotazione;
+        }
+        // Ottieni tutte le prenotazioni non confermate
+        public IEnumerable<Prenotazione> GetPrenotazioniNonConfermate()
+        {
+            var prenotazioni = new List<Prenotazione>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM Prenotazioni WHERE Confermata = 0";
+                var command = new SqlCommand(query, connection);
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        prenotazioni.Add(new Prenotazione
+                        {
+                            ID = reader.GetInt32(reader.GetOrdinal("ID")),
+                            ClienteID = reader.GetString(reader.GetOrdinal("ClienteID")),
+                            CameraID = reader.GetInt32(reader.GetOrdinal("CameraID")),
+                            NumeroProgressivo = reader.GetInt32(reader.GetOrdinal("NumeroProgressivo")),
+                            DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
+                            DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
+                            Confermata = reader.GetBoolean(reader.GetOrdinal("Confermata"))
+                        });
+                    }
+                }
+            }
+            return prenotazioni;
+        }
+
+        // Ottieni la prenotazione non confermata in base al CameraID
+        public Prenotazione GetPrenotazioneNonConfermataByCameraId(int cameraID)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM Prenotazioni WHERE Confermata = 0 AND CameraID = @CameraID";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CameraID", cameraID);
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new Prenotazione
+                        {
+                            ID = reader.GetInt32(reader.GetOrdinal("ID")),
+                            ClienteID = reader.GetString(reader.GetOrdinal("ClienteID")),
+                            CameraID = reader.GetInt32(reader.GetOrdinal("CameraID")),
+                            NumeroProgressivo = reader.GetInt32(reader.GetOrdinal("NumeroProgressivo")),
+                            DataInizio = reader.GetDateTime(reader.GetOrdinal("DataInizio")),
+                            DataFine = reader.GetDateTime(reader.GetOrdinal("DataFine")),
+                            Confermata = reader.GetBoolean(reader.GetOrdinal("Confermata"))
+                        };
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

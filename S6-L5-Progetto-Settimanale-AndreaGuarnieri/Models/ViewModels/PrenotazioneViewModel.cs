@@ -8,6 +8,14 @@ namespace CapStone_AndreaGuarnieri.Models.ViewModels
         public string ClienteID { get; set; }
 
         [Required]
+        [Display(Name = "Cognome Cliente")]
+        public string Cognome { get; set; }  
+
+        [Required]
+        [Display(Name = "Nome Cliente")]
+        public string Nome { get; set; }     
+
+        [Required]
         [Display(Name = "Numero Camera")]
         public int CameraID { get; set; }
 

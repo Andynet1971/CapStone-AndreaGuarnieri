@@ -1,4 +1,5 @@
 ﻿using CapStone_AndreaGuarnieri.Models.Interfaces;
+using CapStone_AndreaGuarnieri.Models.ViewModels;
 
 namespace CapStone_AndreaGuarnieri.Models.Services
 {
@@ -31,6 +32,26 @@ namespace CapStone_AndreaGuarnieri.Models.Services
         {
             // Chiama il metodo dal data access per aggiungere il cliente
             _clienteDataAccess.AddCliente(cliente);
+        }
+        public Cliente GetClienteByCodiceFiscaleOrCognome(string query)
+        {
+            return _clienteDataAccess.GetClienteByCodiceFiscaleOrCognome(query);
+        }
+        public void UpdateCliente(DettaglioPrenotazioneViewModel model)
+        {
+            var cliente = new Cliente
+            {
+                CodiceFiscale = model.ClienteID,
+                Nome = model.Nome,
+                Cognome = model.Cognome,
+                Citta = model.Citta,
+                Provincia = model.Provincia,
+                Email = model.Email,
+                Telefono = model.Telefono,
+                Cellulare = model.Cellulare
+            };
+
+            _clienteDataAccess.UpdateCliente(cliente);
         }
     }
 }

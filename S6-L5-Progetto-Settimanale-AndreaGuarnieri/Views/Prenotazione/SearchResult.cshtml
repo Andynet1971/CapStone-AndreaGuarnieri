@@ -1,38 +1,38 @@
-﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.Prenotazione>
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.ViewModels.SearchResultViewModel>
 
-<div class="table-container">
-    <h2>Risultati della ricerca</h2>
-
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
             <tr>
-                <th>Cliente ID</th>
-                <th>Camera ID</th>
-                <th>Data Prenotazione</th>
-                <th>Data Inizio</th>
-                <th>Data Fine</th>
-                <th>Caparra</th>
-                <th>Tipo Soggiorno</th>
-                <th>Azioni</th>
+                <th>Cognome</th>
+                <th>Nome</th>
+                <th>Codice Fiscale</th>
+                <th>Data Inizio Prenotazione</th>
+                <th>Data Fine Prenotazione</th>
+                <th>Azioni</th> <!-- Aggiunta colonna per il pulsante Dettagli -->
             </tr>
         </thead>
         <tbody>
             @foreach (var prenotazione in Model)
             {
                 <tr>
-                    <td>@prenotazione.ClienteID</td>
-                    <td>@prenotazione.CameraID</td>
-                    <td>@prenotazione.DataPrenotazione.ToShortDateString()</td>
-                    <td>@prenotazione.DataInizio.ToShortDateString()</td>
-                    <td>@prenotazione.DataFine.ToShortDateString()</td>
-                    <td>@prenotazione.Caparra</td>
-                    <td>@prenotazione.TipoSoggiorno</td>
+                    <td>@prenotazione.Cognome</td>
+                    <td>@prenotazione.Nome</td>
+                    <td>@prenotazione.CodiceFiscale</td>
+                    <td>@prenotazione.DataInizio.ToString("dd/MM/yyyy")</td>
+                    <td>@prenotazione.DataFine.ToString("dd/MM/yyyy")</td>
                     <td>
-                        <a asp-action="AddServizioAggiuntivo" asp-route-id="@prenotazione.ID" class="btn btn-primary">Aggiungi Servizio</a>
-                        <a asp-action="Checkout" asp-route-id="@prenotazione.ID" class="btn btn-success">Checkout</a>
-                    </td>
+                        <a href="/Prenotazione/Dettagli/@prenotazione.NumeroProgressivo" class="btn btn-primary">
+                            Dettagli
+                        </a>
+                    </td> <!-- Pulsante per visualizzare i dettagli -->
                 </tr>
             }
         </tbody>
     </table>
-</div>
+}
+else
+{
+    <p>Nessuna prenotazione trovata per il cliente.</p>
+}

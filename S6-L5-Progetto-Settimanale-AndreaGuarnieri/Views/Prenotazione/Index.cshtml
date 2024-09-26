@@ -1,9 +1,5 @@
 ﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.ViewModels.PrenotazioneViewModel>
 
-@{
-    ViewData["Title"] = "Elenco Prenotazioni";
-}
-
 <div class="table-container">
     <h2>Elenco Prenotazioni</h2>
 
@@ -11,8 +7,9 @@
         <thead>
             <tr>
                 <th>Codice Fiscale</th>
+                <th>Cognome</th>
+                <th>Nome</th>
                 <th>Camera</th>
-                <th>Data Prenotazione</th>
                 <th>Data Inizio</th>
                 <th>Data Fine</th>
                 <th>Caparra</th>
@@ -25,8 +22,9 @@
             {
                 <tr>
                     <td>@prenotazione.ClienteID</td>
+                    <td>@prenotazione.Cognome</td> <!-- Mostra il cognome -->
+                    <td>@prenotazione.Nome</td>     <!-- Mostra il nome -->
                     <td>@prenotazione.CameraID</td>
-                    <td>@prenotazione.DataPrenotazione.ToString("dd/MM/yyyy")</td>
                     <td>@prenotazione.DataInizio.ToString("dd/MM/yyyy")</td>
                     <td>@prenotazione.DataFine.ToString("dd/MM/yyyy")</td>
                     <td>@prenotazione.Caparra</td>
@@ -34,6 +32,8 @@
                     <td>
                         <a asp-action="AddServizioAggiuntivo" asp-route-id="@prenotazione.ID" class="btn btn-warning btn-sm">Aggiungi Servizio</a>
                         <a asp-action="Checkout" asp-route-id="@prenotazione.ID" class="btn btn-success btn-sm">Checkout</a>
+                        <a asp-action="Dettagli" asp-route-id="@prenotazione.ID" class="btn btn-info btn-sm">Dettagli</a>
+
                     </td>
                 </tr>
             }

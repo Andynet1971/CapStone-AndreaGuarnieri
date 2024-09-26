@@ -23,7 +23,21 @@ namespace CapStone_AndreaGuarnieri.Models.Services
         public Camera GetCamera(int id)
         {
             // Chiama il metodo dal data access per ottenere una camera specifica
-            return _cameraDataAccess.GetCamera(id);
+            return _cameraDataAccess.GetCameraById(id);
         }
+        public Camera GetCameraById(int cameraID)
+        {
+            return _cameraDataAccess.GetCameraById(cameraID);
+        }
+
+        public void SetDisponibile(int cameraID, bool disponibile)
+        {
+            _cameraDataAccess.SetDisponibile(cameraID, disponibile);
+        }
+        public IEnumerable<Camera> GetCamereByTipologia(string tipologia)
+        {
+            return _cameraDataAccess.GetCamereByTipologia(tipologia);
+        }
+
     }
 }

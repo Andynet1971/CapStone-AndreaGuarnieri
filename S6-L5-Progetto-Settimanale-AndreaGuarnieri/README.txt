@@ -24,10 +24,119 @@ LINGUAGGI DI PROGRAMMAZIONE  E FRAMEWORK USATI
     HTML
     CSS
     JavaScript
-    C#
+    C# 
+    ASP.NET CORE MVC
     Pyton
-    ASP.NET CORE
     WINDOWS FORMS
+
+
+
+STRUTTURA DELL' APPLICAZIONE
+
+CapStone-AndreaGuarnieri
+├── Connected Services
+├── Dependencies
+├── Properties
+├── wwwroot
+│   ├── css
+│   │   └── site.css
+│   ├── Images
+│   ├── js
+│   ├── favicon.ico
+├── Controllers
+│   ├── AccountController.cs
+│   ├── HomeController.cs
+│   ├── PrenotazioneController.cs
+│   ├── StoricoController.cs
+│   ├── StoricoPresenzeController.cs
+│   ├── TariffeController.cs
+│   └── UtenteController.cs
+├── DataAccess
+│   ├── CameraDataAccess.cs
+│   ├── ClienteDataAccess.cs
+│   ├── PrenotazioneDataAccess.cs
+│   ├── ServizioAggiuntivoDataAccess.cs
+│   ├── ServizioDataAccess.cs
+│   ├── StoricoDataAccess.cs
+│   ├── TariffeDataAccess.cs
+│   └── UtenteDataAccess.cs
+├── Interfaces
+│   ├── ICamera.cs
+│   ├── ICliente.cs
+│   ├── IPrenotazione.cs
+│   ├── IServizio.cs
+│   ├── IServizioAggiuntivo.cs
+│   ├── IStorico.cs
+│   ├── ITariffeService.cs
+│   └── IUtente.cs
+├── Models
+│   ├── Camera.cs
+│   ├── Cliente.cs
+│   ├── ClienteConPrenotazione.cs
+│   ├── ErrorViewModel.cs
+│   ├── Prenotazione.cs
+│   ├── PrenotazioneConCliente.cs
+│   ├── Servizio.cs
+│   ├── ServizioAggiuntivo.cs
+│   ├── Tariffa.cs
+│   └── Utente.cs
+├── Models.ViewModels
+│   ├── CameraViewModel.cs
+│   ├── CheckoutViewModel.cs
+│   ├── ClientePrenotazioneViewModel.cs
+│   ├── DettaglioPrenotazioneViewModel.cs
+│   ├── LoginViewModel.cs
+│   ├── OccupazioneViewModel.cs
+│   ├── PrenotazioneViewModel.cs
+│   ├── SearchResultViewModel.cs
+│   ├── SearchViewModel.cs
+│   ├── ServizioAggiuntivoInputModel.cs
+│   ├── ServizioAggiuntivoViewModel.cs
+│   ├── StoricoViewModel.cs
+│   ├── TariffaViewModel.cs
+│   └── UtenteViewModel.cs
+├── Services
+│   ├── CameraService.cs
+│   ├── ClienteService.cs
+│   ├── PrenotazioneService.cs
+│   ├── ServizioAggiuntivoService.cs
+│   ├── ServizioService.cs
+│   ├── StoricoService.cs
+│   ├── TariffeService.cs
+│   └── UtenteService.cs
+├── Views
+│   ├── Account
+│   │   ├── Login.cshtml
+│   │   ├── LoginFailed.cshtml
+│   │   └── ModificaUtente.cshtml
+│   ├── Home
+│   │   ├── Index.cshtml
+│   │   └── Privacy.cshtml
+│   ├── Prenotazione
+│   │   ├── _NoResults.cshtml
+│   │   ├── AddClientePrenotazione.cshtml
+│   │   ├── AddServizioAggiuntivo.cshtml
+│   │   ├── Checkout.cshtml
+│   │   ├── Dettagli.cshtml
+│   │   ├── Index.cshtml
+│   │   ├── Search.cshtml
+│   │   ├── SearchResult.cshtml
+│   │   └── TipologiaSoggiorno.cshtml
+│   ├── Shared
+│   │   ├── _Layout.cshtml
+│   │   ├── _ValidationScriptsPartial.cshtml
+│   │   └── Error.cshtml
+│   ├── StoricoPresenze
+│   │   └── Storico.cshtml
+│   ├── Tariffe
+│   │   ├── _CreateTariffa.cshtml
+│   │   ├── Index.cshtml
+│   │   └── TariffeView.cshtml
+│   └── Utente
+│       └── GestisciUtenti.cshtml
+├── appsettings.json
+├── Program.cs
+└── README.txt
 
 
 Struttura del DATABASE
@@ -151,84 +260,3 @@ CREATE TABLE [dbo].[Utenti] (
     PRIMARY KEY CLUSTERED ([ID] ASC),
     UNIQUE NONCLUSTERED ([Username] ASC)
 );
-
-STRUTTURA DELL' APPLICAZIONE
-
-CapStone-AndreaGuarnieri
-├── wwwroot
-│   ├── css
-│   │   └── site.css
-│   ├── Images
-│   ├── js
-│   └── favicon.ico
-├── Controllers
-│   ├── AccountController.cs
-│   ├── HomeController.cs
-│   ├── PrenotazioneController.cs
-│   ├── StoricoPresenzeController.cs
-│   └── UtenteController.cs
-├── DataAccess
-│   ├── CameraDataAccess.cs
-│   ├── ClienteDataAccess.cs
-│   ├── PrenotazioneDataAccess.cs
-│   ├── ServizioAggiuntivoDataAccess.cs
-│   └── UtenteDataAccess.cs
-├── Interfaces
-│   ├── ICamera.cs
-│   ├── ICliente.cs
-│   ├── IPrenotazione.cs
-│   ├── IServizio.cs
-│   └── IServizioAggiuntivo.cs
-├── Models
-│   ├── Camera.cs
-│   ├── Cliente.cs
-│   ├── Prenotazione.cs
-│   ├── Servizio.cs
-│   ├── ServizioAggiuntivo.cs
-│   ├── Tariffa.cs
-│   └── Utente.cs
-│   └── ViewModels
-│       ├── CheckoutViewModel.cs
-│       ├── ClientePrenotazioneViewModel.cs
-│       ├── LoginViewModel.cs
-│       ├── OccupazioneViewModel.cs
-│       ├── PrenotazioneViewModel.cs
-│       ├── SearchResultViewModel.cs
-│       ├── SearchViewModel.cs
-│       ├── ServizioAggiuntivoViewModel.cs
-│       └── UtenteViewModel.cs
-├── Services
-│   ├── CameraService.cs
-│   ├── ClienteService.cs
-│   ├── PrenotazioneService.cs
-│   ├── ServizioAggiuntivoService.cs
-│   └── UtenteService.cs
-├── Views
-│   ├── Account
-│   │   ├── GestisciUtenti.cshtml
-│   │   ├── Login.cshtml
-│   │   ├── LoginFailed.cshtml
-│   │   └── ModificaUtente.cshtml
-│   ├── Home
-│   │   ├── Index.cshtml
-│   │   └── Privacy.cshtml
-│   ├── Prenotazione
-│   │   ├── AddClientePrenotazione.cshtml
-│   │   ├── AddServizioAggiuntivo.cshtml
-│   │   ├── Checkout.cshtml
-│   │   ├── Index.cshtml
-│   │   ├── Search.cshtml
-│   │   ├── SearchResult.cshtml
-│   │   └── TipologiaSoggiorno.cshtml
-│   ├── Shared
-│   │   ├── _Layout.cshtml
-│   │   ├── _ValidationScriptsPartial.cshtml
-│   │   └── Error.cshtml
-│   └── StoricoPresenze
-│       ├── Storico.cshtml
-│       └── _ViewImports.cshtml
-│       └── _ViewStart.cshtml
-├── appsettings.json
-├── Program.cs
-└── README.txt
-

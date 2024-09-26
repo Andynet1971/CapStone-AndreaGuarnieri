@@ -7,31 +7,68 @@
 <div class="form-container">
     <h2>@ViewData["Title"]</h2>
 
-    <form asp-action="AddServizioAggiuntivo" method="post">
-        <div class="form-group">
-            <label asp-for="PrenotazioneID"></label>
-            <input asp-for="PrenotazioneID" class="form-control" readonly />
-            <span asp-validation-for="PrenotazioneID" class="text-danger"></span>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            Ci sono errori nel modulo. Controlla i campi evidenziati.
         </div>
+    }
+
+    <form asp-action="AddServizioAggiuntivo" method="post">
+        <!-- Passa l'ID della prenotazione come campo nascosto -->
+        <input type="hidden" asp-for="PrenotazioneID" />
+
+        <!-- Dropdown per selezionare il servizio e visualizzare il prezzo -->
         <div class="form-group">
-            <label asp-for="ServizioID"></label>
-            <select asp-for="ServizioID" class="form-control" asp-items="@(new SelectList(Model.ServiziDisponibili, "ID", "Nome"))"></select>
+            <label>Seleziona Servizio</label>
+            <select id="servizioSelect" asp-for="ServizioID" class="form-control" asp-items="@(new SelectList(Model.ServiziDisponibili, "ID", "Nome"))" onchange="updatePrice()"></select>
             <span asp-validation-for="ServizioID" class="text-danger"></span>
         </div>
+
+        <!-- Campo per visualizzare la tariffa del servizio selezionato -->
+        <div class="form-group">
+            <label>Prezzo del Servizio</label>
+            <input id="tariffaServizio" class="form-control" value="@Model.TariffaServizio.ToString("F2")" readonly />
+        </div>
+
+        <!-- Campo data, preimpostato sulla data odierna -->
         <div class="form-group">
             <label asp-for="Data"></label>
             <input asp-for="Data" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
             <span asp-validation-for="Data" class="text-danger"></span>
         </div>
+
+        <!-- Campo quantità -->
         <div class="form-group">
             <label asp-for="Quantita"></label>
-            <input asp-for="Quantita" class="form-control" />
+            <input asp-for="Quantita" class="form-control" type="number" value="1" />
             <span asp-validation-for="Quantita" class="text-danger"></span>
         </div>
+
         <button type="submit" class="btn btn-primary">Salva</button>
     </form>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Funzione per aggiornare il prezzo del servizio selezionato
+        function updatePrice() {
+            var servizioID = document.getElementById("servizioSelect").value;
+            var servizi = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ServiziDisponibili));
+            var selectedServizio = servizi.find(s => s.ID == servizioID);
+
+            if (selectedServizio) {
+                document.getElementById("tariffaServizio").value = selectedServizio.Tariffa.toFixed(2) + " €";
+            } else {
+                document.getElementById("tariffaServizio").value = "N/A";
+            }
+        }
+
+        // Aggiorna il prezzo iniziale quando la pagina si carica
+        document.addEventListener("DOMContentLoaded", function () {
+            updatePrice();
+        });
+    </script>
+
 }

@@ -1,4 +1,6 @@
-﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.OccupazioneViewModel
+﻿@model CapStone_AndreaGuarnieri.Models.ViewModels.StoricoViewModel
+
+<h2 class="titolo-sezione">Storico Presenze</h2>
 
 @{
     var periodi = new Dictionary<string, string>
@@ -10,10 +12,8 @@
     };
 }
 
-<h2>Storico Presenze</h2>
-
-<form method="get" asp-controller="StoricoPresenze" asp-action="Storico">
-    <select name="periodo" onchange="this.form.submit()">
+<form method="get" asp-controller="StoricoPresenze" asp-action="Storico" class="form-periodo">
+    <select name="periodo" onchange="this.form.submit()" class="seleziona-periodo">
         @foreach (var periodo in periodi)
         {
             if (Model.PeriodoSelezionato == periodo.Key)
@@ -29,12 +29,23 @@
 </form>
 
 <!-- Grafico tasso di occupazione -->
-<canvas id="occupazioneChart" width="400" height="200"></canvas>
+<canvas id="occupazioneChart" class="small-chart"></canvas>
 
 <!-- Grafico degli incassi -->
-<canvas id="incassiChart" width="400" height="200"></canvas>
+<canvas id="incassiChart" class="small-chart"></canvas>
+
+<!-- Visualizza le statistiche -->
+
+<div class="statistiche">
+    <p><strong>Occupazione Media:</strong> @Math.Round(Model.OccupazioneMedia, 0) %</p>
+    <p><strong>Durata Media Soggiorni:</strong> @Math.Round(Model.DurataMediaSoggiorni, 0) giorni</p>
+    <p><strong>Incasso Totale:</strong> @Model.IncassoTotale €</p>
+    <p><strong>Utilizzo Servizi Aggiuntivi:</strong> @Model.UtilizzoServiziAggiuntivi unità</p>
+    <p><strong>Percentuale Clienti con Servizi Aggiuntivi:</strong> @Math.Round(Model.PercentualeClientiConServiziAggiuntivi, 0) %</p>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     // Grafico tasso di occupazione
     var ctxOccupazione = document.getElementById('occupazioneChart').getContext('2d');

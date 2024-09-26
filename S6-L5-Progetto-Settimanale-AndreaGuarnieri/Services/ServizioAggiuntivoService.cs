@@ -1,4 +1,5 @@
 ﻿using CapStone_AndreaGuarnieri.Models.Interfaces;
+using CapStone_AndreaGuarnieri.Models.ViewModels;
 
 namespace CapStone_AndreaGuarnieri.Models.Services
 {
@@ -31,6 +32,23 @@ namespace CapStone_AndreaGuarnieri.Models.Services
         {
             // Chiama il metodo dal data access per ottenere tutti i servizi
             return _servizioAggiuntivoDataAccess.GetAllServizi();
+        }
+        public void UpdateServizioAggiuntivo(ServizioAggiuntivoViewModel servizio)
+        {
+            var servizioAggiuntivo = new ServizioAggiuntivo
+            {
+                ID = servizio.ID,
+                PrenotazioneID = servizio.PrenotazioneID,
+                ServizioID = servizio.ServizioID,
+                Data = servizio.Data,
+                Quantita = servizio.Quantita
+            };
+
+            _servizioAggiuntivoDataAccess.UpdateServizioAggiuntivo(servizioAggiuntivo);
+        }
+        public void DeleteServizioAggiuntivo(int id)
+        {
+            _servizioAggiuntivoDataAccess.DeleteServizioAggiuntivo(id);
         }
     }
 }

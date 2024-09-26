@@ -1,0 +1,81 @@
+﻿@model IEnumerable<CapStone_AndreaGuarnieri.Models.Utente>
+
+<h2>Gestione Utenti</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Ruolo</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            var utente = Model.ElementAt(i);
+            <tr>
+                <td>@utente.ID</td>
+                <td>
+                    <input type="hidden" name="utenti[@i].ID" value="@utente.ID" />
+                    <input type="text" class="form-control" name="utenti[@i].Username" value="@utente.Username" readonly />
+                </td>
+                <td>
+                    <input type="text" class="form-control" id="Nome_@i" value="@utente.Nome" />
+                </td>
+                <td>
+                    <input type="text" class="form-control" id="Cognome_@i" value="@utente.Cognome" />
+                </td>
+                <td>
+                    <select class="form-control" id="Ruolo_@i">
+                        @foreach (var ruolo in new[] { "Master", "Admin", "Staff" })
+                        {
+                            if (utente.Ruolo == ruolo)
+                            {
+                                <option value="@ruolo" selected="selected">@ruolo</option>
+                            }
+                            else
+                            {
+                                <option value="@ruolo">@ruolo</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <td>
+                    <form asp-controller="Utente" asp-action="SalvaModificheUtente" method="post" style="display:inline;" onsubmit="aggiornaDati(@i)">
+                        <input type="hidden" name="ID" value="@utente.ID" />
+                        <input type="hidden" name="Username" value="@utente.Username" />
+                        <input type="hidden" name="Nome" id="HiddenNome_@i" value="@utente.Nome" />
+                        <input type="hidden" name="Cognome" id="HiddenCognome_@i" value="@utente.Cognome" />
+                        <input type="hidden" name="Ruolo" id="HiddenRuolo_@i" value="@utente.Ruolo" />
+                        <button type="submit" class="btn btn-success">Salva</button>
+                    </form>
+
+                    <form asp-controller="Utente" asp-action="DeleteUtente" method="post" style="display:inline;">
+                        <input type="hidden" name="ID" value="@utente.ID" />
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler cancellare questo utente?');">Elimina</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    function aggiornaDati(i) {
+        // Copia i valori dai campi visibili ai campi hidden
+        var nome = document.getElementById('Nome_' + i).value;
+        var cognome = document.getElementById('Cognome_' + i).value;
+        var ruolo = document.getElementById('Ruolo_' + i).value;
+
+        // Aggiungi i valori nascosti
+        document.getElementById('HiddenNome_' + i).value = nome;
+        document.getElementById('HiddenCognome_' + i).value = cognome;
+        document.getElementById('HiddenRuolo_' + i).value = ruolo;
+        return false; // Prevent form from submitting
+    }
+</script>
+
